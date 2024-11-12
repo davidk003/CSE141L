@@ -14,7 +14,7 @@ ProgramCounter ProgramCounter_inst(
 initial begin
     //Initial
     reset = 1;
-	clock = 1;
+	clk = 1;
     jump = 4;
     reset = 0;
 
@@ -26,7 +26,7 @@ initial begin
 
 end
 
-always@(clock) begin
-	#10ns clock <= !clock;
+always@(clk) begin
+	#10ns clk <= !clk;
 end
 endmodule: ProgramCounter_testbench

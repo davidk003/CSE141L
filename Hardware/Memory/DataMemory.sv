@@ -4,7 +4,7 @@ module DataMemory(
     input logic ren,
     input logic [7:0] writeData,
     input logic [7:0] address,
-    output logic [7:0] readData,
+    output logic [7:0] readData
     );
 
     logic [7:0] core [256];
