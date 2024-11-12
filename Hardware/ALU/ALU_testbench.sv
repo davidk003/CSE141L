@@ -9,7 +9,7 @@ ALU ALU_inst(
         .op1(op1),
         .op2(op2),
         .Aluop(Aluop),
-        .output(out),
+        .result(out),
         .equal(equal),
         .lessThan(lessThan)
     );

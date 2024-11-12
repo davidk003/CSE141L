@@ -1,7 +1,7 @@
 module ALU(
     input logic[7:0] op1, op2,
     input logic[2:0] Aluop,
-    output logic[7:0] output,
+    output logic[7:0] result,
     output logic equal,
     output logic lessThan,
 );
