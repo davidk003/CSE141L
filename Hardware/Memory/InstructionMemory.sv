@@ -1,4 +1,4 @@
-module InstROM(
+module InstructionMemory(
   input[7:0] PC,
   output logic[8:0] mach_code);
 
