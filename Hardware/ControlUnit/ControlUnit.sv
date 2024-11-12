@@ -6,10 +6,27 @@ module ControlUnit(
     output logic regWrite,
     output logic [2:0] aluOp,
 );
-    enum {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
+    typedef enum {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
+    instruction_type instruction;
+
     always_comb begin
-        type =
-        if()
+        if(bits[8:7] == R) begin
+            aluOp = bits[6:4];
+        end
+        else if(bits[8:7] == M) begin
+            instruction = M;
+        end
+        else if(bits[8:7] == B) begin
+            instruction = B;
+        end
+        else if(bits[8:7] == S) begin
+            instruction = S;
+        end
+        else begin
+            instruction = 2'b00;
+
+        end
+
     end
 
     assign jump = (opcode == 8'b00);

@@ -1,7 +1,7 @@
 module ProgramCounter(
     input logic clk, reset, jumpEnable,
     input logic[7:0] jump,
-    output logic[7:0] count,
+    output logic[7:0] count
 );
 
 always @(posedge clk) begin
