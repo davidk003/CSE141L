@@ -14,7 +14,19 @@ module ControlUnit(
             aluOp = bits[6:4];
         end
         else if(bits[8:7] == M) begin
-            instruction = M;
+            case(bits[6:4])
+                3'b000: begin
+                    instruction = M;
+                    aluOp = 3'b011;
+                end
+                3'b001: begin
+                    instruction = M;
+                    aluOp = 3'b100;
+                end
+                default: begin
+                    instruction = 2'b00;
+                end
+            endcase
         end
         else if(bits[8:7] == B) begin
             instruction = B;
