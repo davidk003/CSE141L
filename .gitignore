@@ -1,5 +1,114 @@
 .vscode
-*.mpf
-*.wlf
+# Executable
+*.out
+
+# Wave file
+*.vcd
+*.vcd.pdf
+
+# modelsim
+# ignore ModelSim generated files and directories (temp files and so on)
+[_@]*
+
+# ignore compilation output of ModelSim
 *.mti
+*.dat
+*.dbs
+*.psm
+*.bak
+*.cmp
+*.html
+*.bsf
+
+# ignore simulation output of ModelSim
+wlf*
+*.wlf
+*.vstf
+*.ucdb
+transcript*
+sc_dpiheader.h
+vsim.dbg
+*.mpf
+*.qsf
+*.sft
+*.xrf
+*.sld
+*.vo
+*.qpf
+
+# FOSS 
+*.asc
+*.bin
+*.blif
+*.swp
+*.json
+host
+*.o
+
+# verilator
+obj_dir
+
+# vivado
+.Xil
+
+# temp
+*.swp
+
+#vcs
+csrc 
+simv* 
+*.key 
+*.vcd
+
+#vcs + verdi
+*.log
+*.daidir
+*.fsdb
+*.vdb
+novas.conf
+novas.rc
+verdiLog
+
+# UVM
+vc_hdrs.h
+*_generation_script*
+*_inst.vhd
+*.bak
+*.cmp
+*.done
+*.eqn
+*.hex
+*.html
+*.jdi
+*.jpg
+# *.mif
+*.pin
+*.pof
+*.ptf.*
+*.qar
+*.qarlog
+*.qws
+*.rpt
+*.smsg
+*.sof
+*.sopc_builder
+*.summary
+*.tcl
+*.txt # Explicitly add any text files used
+*~
+*example*
+*sopc_*
+# *.sdc # I want those timing files
+
+# ignore Quartus II generated folders
+*/db/
+*/incremental_db/
+*/simulation/
+*/timing/
+*/testbench/
+*/*_sim/
+incremental_db/
+db/
+_output_files/
 */work
+*.zip

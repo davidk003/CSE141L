@@ -1,5 +1,5 @@
 module RegisterFile(
-  input      Clk,	 // clock
+  input      clk,	 // clock
              Wen,    // write enable
   input[1:0] Ra,     // read address pointer A
              Rb,     //                      B
@@ -10,7 +10,7 @@ module RegisterFile(
 
   logic[7:0] Core[4]; // reg file itself (4*8 array)
 
-  always_ff @(posedge Clk)
+  always_ff @(posedge clk)
     if(Wen) Core[Wd] <= Wdat;
 
   assign RdatA = Core[Ra];

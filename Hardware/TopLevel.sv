@@ -1,11 +1,11 @@
 module TopLevel(
-  input        Clk,
-		       Reset,
+  input        clk,
+		       reset,
   output logic Done);
 
-  wire[5:0] Jump,
-	        PC;
-  wire[1:0] Aluop,
+  wire[5:0] Jump;
+  wire[7:0] PC;
+  wire[2:0] Aluop,
             Ra,
 			Rb,
 			Wd,
@@ -29,26 +29,29 @@ module TopLevel(
 			Ldr,		 // LOAD
 			Str;		 // STORE
 
+    logic [7:0] index;
+    logic[7:0] value;
+
 assign  DatA = RdatA;
 assign  DatB = RdatB; 
 assign  WdatR = Rslt; 
 
-JLUT JL1(
-  .Jptr,
-  .Jump);
+LookUpTable JL1(
+  .index,
+  .value);
 
-ProgCtr PC1(
-  .Clk,
-  .Reset,
-  .Jen,
-  .Jump,
-  .PC);
+ProgramCounter PC1(
+  .clk,
+  .reset,
+  .jumpEnable(Jen),
+  .jump(Jump),
+  .count(PC));
 
-InstROM IR1(
+InstructionMemory IR1(
   .PC,
   .mach_code);
 
-Ctrl C1(
+ControlUnit C1(
   .mach_code,
   .Aluop,
   .Jptr,
@@ -60,32 +63,33 @@ Ctrl C1(
   .Ldr,
   .Str);
 
-RegFile RF1(
-  .Clk,
-  .Wen(WenR),
-  .Ra,
-  .Rb,
-  .Wd,
-  .Wdat(WdatR),
-  .RdatA,
-  .RdatB
-);
+// RegFile RF1(
+//   .clk(clk),
+//   .Wen(WenR),
+//   .Ra,
+//   .Rb,
+//   .Wd,
+//   .Wdat(WdatR),
+//   .RdatA,
+//   .RdatB
+// );
 
 ALU A1(
   .Aluop,
-  .DatA,
-  .DatB,
-  .Rslt,
-  .Zero,
-  .Par,
-  .SCo);
+  .op1(DatA),
+  .op2(DatB),
+  .result(Rslt),
+  .equal(Zero),
+  .lessThan(Par),
+//   .SCo
+  );
 
-DMem DM1(
-  .Clk,
-  .Wen (WenD),
-  .WDat(WdatD),
-  .Addr,
-  .Rdat);
+DataMemory DM1(
+  .clk,
+  .wen (WenD),
+  .writeData(WdatD),
+  .address(Addr),
+  .readData(Rdat));
 
 
 endmodule: TopLevel

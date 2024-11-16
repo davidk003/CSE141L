@@ -7,7 +7,7 @@ module ControlUnit(
     output logic memRead,
     output logic regWrite,
     output logic [4:0] LUTIndex,
-    output logic [2:0] aluOp,
+    output logic [2:0] Aluop,
     output logic shiftDirection,
     output logic [2:0] shiftAmount
 );
@@ -20,11 +20,11 @@ module ControlUnit(
         memRead = 1'b0;
         branch = 1'b0;
         LUTIndex = bits[4:0];
-        aluOp = 3'b000;
+        Aluop = 3'b000;
         shiftDirection = 1'b0;
         shiftAmount = 3'b000;
         if(bits[8:7] == R) begin
-            aluOp = bits[6:4];
+            Aluop = bits[6:4];
         end
         else if(bits[8:7] == M) begin
             case(bits[6:4])
