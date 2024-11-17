@@ -1,0 +1,30 @@
+AND R1 R2
+OR R1 R2
+XOR R1 R2
+ADD R1 R2   
+SUB R1 R2
+SLT R1 R2
+SLTE R1 R2
+SEQ R1 R2
+SB R1 R2
+LB R1 R2
+LL #7
+SEQ R1 R2
+BEQ .LabelName1
+.LabelName1
+    AND R1 R2
+    OR R1 R2
+SLT R1 R2
+BLT .LabelName2
+.LabelName2
+    AND R1 R2
+    OR R1 R2
+SLTE R1 R2
+BLTE .LabelName3
+.LabelName3
+    AND R1 R2
+    OR R1 R2
+BUN .LabelName3
+BF #2
+LSL R1 #4
+LSR R1 #4

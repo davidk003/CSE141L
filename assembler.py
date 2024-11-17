@@ -4,6 +4,7 @@ OUTPUT_FILE_NAME = "machine_" + FILE_NAME
 # Define the instruction set
 INSTRUCTION_SET = {
     # Arithmetic Instructions R-Type(00)
+    # 2 bit type (00) 3 bits opcode (110), 2 bit operand register(XX), 2 bit operand register(XX)
     "AND": "00000",
     "OR": "00001",
     "XOR": "00010",
@@ -17,6 +18,15 @@ INSTRUCTION_SET = {
     "LB": "01001",
     "LL": "01010",
     # Branch Instructions B-Type(10)
+    "BEQ": "1000",
+    "BLT": "1001",
+    "BLTE": "1010",
+    "BUN": "1011",
+    # Shift Instructions S-Type(11)
+    "LSL": "1100",
+    "LSR": "1101",
+    "BF": "1110",
+    "BB": "1111",
 }
 
 REGISTERS = {
@@ -26,17 +36,144 @@ REGISTERS = {
     "R3": "11"
 }
 
-machine_code = []
+def convert_R_type(lineSplit):
+    if lineSplit[0] in ["AND", "OR", "XOR", "ADD", "SUB", "SLT", "SLTE", "SEQ"]:
+        if len(lineSplit) != 3:
+            raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+        if lineSplit[1] not in REGISTERS or lineSplit[2] not in REGISTERS:
+            raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
+        machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{REGISTERS[lineSplit[2]]}"
+        return machine_code_line
+    return None
 
+def convert_M_type(lineSplit):
+    if lineSplit[0] in ["SB", "LB", "LL"]:
+        if lineSplit[0] == "LL":
+            if len(lineSplit) != 2:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if "#" not in lineSplit[1]:
+                raise Exception(f"Invalid immedate on line {i+1}. {lineSplit}")
+            lineSplit[1] = lineSplit[1].strip('#')
+            num = format(int(lineSplit[1]), '05b')
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{str(num)}"
+        else:
+            if len(lineSplit) != 3:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if lineSplit[1] not in REGISTERS or lineSplit[2] not in REGISTERS:
+                raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{REGISTERS[lineSplit[2]]}"
+        return machine_code_line
+    return None
+
+def convert_B_type(lineSplit):
+    if lineSplit[0] in ["BEQ", "BLT", "BLTE", "BUN"]:
+        if lineSplit[1][0] == "." and lineSplit[1] in labels:
+                current = i+1
+                target = labels[lineSplit[1]][0]
+                jump = target - current
+                num = format(~jump, '05b')
+                machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{str(num)}"
+                return machine_code_line
+        if lineSplit[0] == "BUN":
+            if len(lineSplit) != 2:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if "#" not in lineSplit[1]:
+                raise Exception(f"Invalid immedate on line {i+1}. {lineSplit}")
+            lineSplit[1] = lineSplit[1].strip('#')
+            num = format(int(lineSplit[1]), '05b')
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{str(num)}"
+        else:
+            if len(lineSplit) != 3:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if lineSplit[1] not in REGISTERS or lineSplit[2] not in REGISTERS:
+                raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{REGISTERS[lineSplit[2]]}"
+        return machine_code_line
+    return None
+
+def convert_S_type(lineSplit):
+    if lineSplit[0] in ["LSL", "LSR", "BF", "BB"]:
+        if lineSplit[0] in ["BF", "BB"]:
+            if len(lineSplit) != 2:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if "#" not in lineSplit[1]:
+                raise Exception(f"Invalid immedate on line {i+1}. {lineSplit}")
+            lineSplit[1] = lineSplit[1].strip('#')
+            num = format(int(lineSplit[1]), '05b')
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{str(num)}"
+        else:
+            if len(lineSplit) != 3:
+                raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
+            if lineSplit[1] not in REGISTERS:
+                raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
+            if "#" not in lineSplit[2]:
+                raise Exception(f"Invalid immedate on line {i+1}. {lineSplit}")
+            lineSplit[2] = lineSplit[2].strip('#')
+            num = format(int(lineSplit[2]), '05b')
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{str(num)}"
+        return machine_code_line
+    return None
+
+machine_code = []
+asm_code = []
+labels = {} # Key: label, Value: (machine address, asm line number)
 with open(FILE_NAME, "r") as file:
     for i, line in enumerate(file):
-        line = line.split(" ")
-        print(line)
-        if line[0] in INSTRUCTION_SET:
-            if line[0] in ["AND", "OR", "XOR", "ADD", "SUB", "SLT", "SLTE", "SEQ"]:
-                machine_code.append(INSTRUCTION_SET[line[0]] + REGISTERS[line[1]] + REGISTERS[line[2]] + REGISTERS[line[3]])
-            elif line[0] in ["SB", "LB", "LL"]:
-                machine_code.append(INSTRUCTION_SET[line[0]] + REGISTERS[line[1]] + REGISTERS[line[2]] + line[3])
-            else:
-                print(f"Invalid instruction on line {i+1}. {line}")
-                quit()
+        line = line.replace("\n", " ")
+        line = line.replace("\t", " ")
+        lineSplit = line.split(" ")
+        while lineSplit.count("") > 0:
+            machine_code_line = ""
+            lineSplit.remove("")
+        if len(lineSplit) == 1 and lineSplit[0][0] == ".":
+            if lineSplit[0] in labels:
+                print(f"Label already defined on line {labels[lineSplit[0]][0]}. {lineSplit}")
+                break
+            labels[lineSplit[0]] = ((i+1)- len(labels), i+1)
+        else:
+            asm_code.append(line)
+print(labels)
+
+
+
+with open(FILE_NAME, "r") as file:
+    for i, line in enumerate(asm_code):
+        line = line.replace("\n", " ")
+        line = line.replace("\t", " ")
+        lineSplit = line.split(" ")
+
+        while lineSplit.count("") > 0:
+            machine_code_line = ""
+            lineSplit.remove("")
+        if lineSplit[0] not in INSTRUCTION_SET:
+            print(f"Instruction parse error on line {i+1}. {lineSplit}")
+            break
+        try:
+            machine_code_line = convert_R_type(lineSplit)
+            if machine_code_line:
+                machine_code.append((i+1, machine_code_line, line))
+                continue
+            machine_code_line = convert_M_type(lineSplit)
+            if machine_code_line:
+                machine_code.append((i+1, machine_code_line, line))
+                continue
+            machine_code_line = convert_B_type(lineSplit)
+            if machine_code_line:
+                machine_code.append((i+1, machine_code_line, line))
+                continue
+            machine_code_line = convert_S_type(lineSplit)
+            if machine_code_line:
+                machine_code.append((i+1, machine_code_line, line))
+                continue
+            if lineSplit[0][0] == ".":
+                print("Label: " + lineSplit[0])
+                continue
+            print(f"Invalid instruction on line {i+1}. {lineSplit}")
+            machine_code.append((i+1, machine_code_line, line))
+        except Exception as e:
+            # print(f"Instruction parse error on line {i+1}. {lineSplit}")
+            print(e)
+            break
+
+for line in machine_code:
+    print(line)
