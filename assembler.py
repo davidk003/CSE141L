@@ -1,5 +1,5 @@
-FILE_NAME = "something.txt"
-OUTPUT_FILE_NAME = "machine_" + FILE_NAME
+FILE_NAME = "./Software/fixedToFloat.asm"
+OUTPUT_FILE_NAME = "machine_code.txt"
 
 # Define the instruction set
 INSTRUCTION_SET = {
@@ -17,6 +17,8 @@ INSTRUCTION_SET = {
     "SB": "01000",
     "LB": "01001",
     "LL": "01010",
+    "LIL": "01011",
+    "LIU": "01100",
     # Branch Instructions B-Type(10)
     "BEQ": "1000",
     "BLT": "1001",
@@ -30,10 +32,10 @@ INSTRUCTION_SET = {
 }
 
 REGISTERS = {
-    "R0": "00",
-    "R1": "01",
-    "R2": "10",
-    "R3": "11"
+    "R1": "00",
+    "R2": "01",
+    "R3": "10",
+    "R4": "11"
 }
 
 def convert_R_type(lineSplit):
@@ -47,8 +49,8 @@ def convert_R_type(lineSplit):
     return None
 
 def convert_M_type(lineSplit):
-    if lineSplit[0] in ["SB", "LB", "LL"]:
-        if lineSplit[0] == "LL":
+    if lineSplit[0] in ["SB", "LB", "LL", "LIL", "LIU"]:
+        if lineSplit[0] in ["LL", "LIL", "LIU"]:
             if len(lineSplit) != 2:
                 raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
             if "#" not in lineSplit[1]:
@@ -106,11 +108,9 @@ def convert_S_type(lineSplit):
                 raise Exception(f"Invalid number of arguments on line {i+1}. {lineSplit}")
             if lineSplit[1] not in REGISTERS:
                 raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
-            if "#" not in lineSplit[2]:
-                raise Exception(f"Invalid immedate on line {i+1}. {lineSplit}")
-            lineSplit[2] = lineSplit[2].strip('#')
-            num = format(int(lineSplit[2]), '05b')
-            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{str(num)}"
+            if lineSplit[2] not in REGISTERS:
+                raise Exception(f"Invalid register on line {i+1}. {lineSplit}")
+            machine_code_line = f"{INSTRUCTION_SET[lineSplit[0]]}_{REGISTERS[lineSplit[1]]}_{REGISTERS[lineSplit[2]]}"
         return machine_code_line
     return None
 
@@ -119,19 +119,23 @@ asm_code = []
 labels = {} # Key: label, Value: (machine address, asm line number)
 with open(FILE_NAME, "r") as file:
     for i, line in enumerate(file):
+        line = line.split("//")[0]
         line = line.replace("\n", " ")
         line = line.replace("\t", " ")
         lineSplit = line.split(" ")
+
         while lineSplit.count("") > 0:
             machine_code_line = ""
             lineSplit.remove("")
+        if len(line)==0:
+            continue
         if len(lineSplit) == 1 and lineSplit[0][0] == ".":
             if lineSplit[0] in labels:
                 print(f"Label already defined on line {labels[lineSplit[0]][0]}. {lineSplit}")
                 break
             labels[lineSplit[0]] = ((i+1)- len(labels), i+1)
         else:
-            asm_code.append(line)
+                asm_code.append(line)
 print(labels)
 
 
@@ -145,7 +149,12 @@ with open(FILE_NAME, "r") as file:
         while lineSplit.count("") > 0:
             machine_code_line = ""
             lineSplit.remove("")
-        if lineSplit[0] not in INSTRUCTION_SET:
+        print(lineSplit)
+        if lineSplit[0] == "RETURN":
+            machine_code_line = lineSplit[0]
+            machine_code.append((i+1, machine_code_line, line))
+            continue
+        elif lineSplit[0] not in INSTRUCTION_SET:
             print(f"Instruction parse error on line {i+1}. {lineSplit}")
             break
         try:
@@ -177,3 +186,8 @@ with open(FILE_NAME, "r") as file:
 
 for line in machine_code:
     print(line)
+
+with open(OUTPUT_FILE_NAME, "w") as file:
+    for line in machine_code:
+        file.write(line[1] + "\n")
+    file.write("RETURN")

@@ -106,6 +106,7 @@ uint16_t fixedToFloat(uint8_t fixed1, uint8_t fixed2) {
         }
 
     }
+    //Ignore this part for the assembly
     uint16_t returnBitmask = 0b0000000000000000;
     returnBitmask = returnBitmask | (sign << 15);
     returnBitmask = returnBitmask | (exp << 10);
@@ -113,8 +114,6 @@ uint16_t fixedToFloat(uint8_t fixed1, uint8_t fixed2) {
     //Need to shift mantissa values in reality.
     returnBitmask = returnBitmask | (mantissa1);
     returnBitmask = returnBitmask | (mantissa2);
-
-
     return returnBitmask;
 }
 
