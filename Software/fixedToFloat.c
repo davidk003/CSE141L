@@ -5,18 +5,25 @@
 // Converts 2 halves of 8 bit fixed point number to a 16 bit float
 uint16_t fixedToFloat(uint8_t fixed1, uint8_t fixed2) {
     //Case for minimum possible and zero float.
+    //Load in 0b00000000 from LUT beforehand
+
     if(fixed2 == 0b00000000) {
         if(fixed1 == 0b10000000)
         {
+            //Return from LUT
+            //Minimum float
             return 0b1111100000000000;
         }
         if(fixed1 == 0b00000000)
         {
+            //Return from LUT
+            //Zero float
             return 0b0000000000000000;
         }
     }
 
     // Get sign bit
+    //Load in 0b10000000 from LUT beforehand
     uint8_t sign = fixed1 & 0b10000000;
     if (sign == 0b10000000) {
         fixed1 = ~fixed1 + 1; //Abs value (2s comp)
