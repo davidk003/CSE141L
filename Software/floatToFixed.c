@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-uint16_int floatAdd(uint_8_int op1, uint_8_int op2)
+uint16_t floatAdd(uint8_t op1, uint8_t op2)
 {
     
 }
