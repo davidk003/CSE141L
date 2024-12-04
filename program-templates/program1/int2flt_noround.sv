@@ -38,7 +38,7 @@ module int2flt(
 	  if(sgn) int1 = ~int1 + 16'b1;     // int1 = abs(int1)
       if(trap) begin
 	    exp = sgn? 5'd30 : '0;
-		int1 = '0;
+		  int1 = '0;
 	  end
       else begin
 // normalization -- start w/ biased exponent = 14+15, count down as needed
