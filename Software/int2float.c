@@ -36,12 +36,46 @@ uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
         fixed1 = ~fixed1 + 1; //Abs value (2s comp)
         fixed2 = ~fixed2 + 1;
     }
-    uint8_t expMask = 0b01111111; //This might not be it
+    uint8_t LEAD_EXP_MASK = 0b01000000; //This might not be it
     // Check leftmost bit after sign (exp)
     //Normalization
-    uint8_t exp = 0;
-    uint8_t i = 1;
-    while()
+    uint8_t exp = 29; // Biased exponent start 14+15
+    uint8_t i = 0;
+    while(i < 7) {
+        uint8_t temp = fixed1 & LEAD_EXP_MASK;
+        if (temp  == LEAD_EXP_MASK) {
+            break;
+        }
+        else{
+            fixed1 = fixed1 << 1;
+            exp--;
+            i++;
+        }
+    }
+    uint8_t SEVEN = 7;
+    uint8_t mantissa = 0;
+    if(i == SEVEN) {
+        //If the loop went to last 
+        return concatFloat(fixed1, fixed2);
+        
+    }
+    while(i < 9) {
+        uint8_t temp = fixed1 & LEAD_EXP_MASK;
+        if (temp == LEAD_EXP_MASK) {
+            break;
+        }
+        else{
+            fixed2 = fixed2 << 1;
+            exp--;
+            i++;
+        }
+    }
+    
+    float1 = sign;
+    float2 = ZERO_CONST;
+    uint8_t temp = exp >> 1;
+    float1 = float1 | temp;
+
 }
 
 int main() {

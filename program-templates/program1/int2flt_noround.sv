@@ -45,7 +45,7 @@ module int2flt(
         for(int ct=29;ct>13;ct--) begin
           if(int1[14]==1'b0) begin   // priority coder
             int1 = int1<<1'b1;	// looks for position of leading one
-	        exp--;				        // decrement exponent every time we double mant.
+	          exp--;				        // decrement exponent every time we double mant.
 	      end
 		  else break; 
 		end
