@@ -1,9 +1,17 @@
 module ALU(
+    input logic [1:0] control_in,
     input logic[7:0] op1, op2,
     input logic[2:0] Aluop,
     output logic[7:0] result,
     output logic equal,
     output logic lessThan
+);
+
+Shifter Shifter_inst (
+    .operand(op2),
+    .direction(control_in[0]),
+    .shift(Aluop[2:0]),
+    .result(op2)
 );
 
     always_comb begin
