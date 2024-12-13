@@ -1,6 +1,7 @@
 #include <stdint.h>
 
-uint16_t floatAdd(uint8_t op1, uint8_t op2)
+// 1 bit sign, 11 bit mantissa, 5 bit exponent
+uint16_t floatAdd(uint8_t op1_1, uint8_t op1_2, uint8_t op2_1, uint8_t op2_2)
 {
     //Store in LUTs
     uint8_t SIGN_MASK = 0b10000000;
@@ -8,13 +9,9 @@ uint16_t floatAdd(uint8_t op1, uint8_t op2)
     uint8_t MANT_MASK = 0b00001111;
 
     //Will likely have to be stored in memory, not enough registers
-    uint8_t sign1 = op1 & SIGN_MASK;
-    uint8_t sign2 = op2 & SIGN_MASK;
-    uint8_t res_sign = sign1;
-    if (sign1 < sign2)
-    {
-        res_sign = sign2;
-    }
+    uint8_t exp1 = op1_1 & EXP_MASK;
+    uint8_t exp2 = op2_1 & EXP_MASK;
+    uint8_t res_sign = sign1; // No sub case so just assign sign
 
     uint8_t mantissa1 = op1 & MANT_MASK;
     uint8_t mantissa2 = op2 & MANT_MASK;

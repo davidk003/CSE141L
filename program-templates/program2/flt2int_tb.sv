@@ -15,7 +15,7 @@ module flt2int_tb_noround();
   logic signed[15:0] int_out;			 // two's comp. result
   int  score0, score1, 
        count;                   
-  flt2int0 f2(.clk(clk),		 // my dummy DUT goes here
+  flt2int f2(.clk(clk),		 // my dummy DUT goes here
     .reset (reset),
     .start (req  ),
     .done  (ack0));				 

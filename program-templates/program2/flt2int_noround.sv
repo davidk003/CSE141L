@@ -1,7 +1,8 @@
 // behavioral model of float to integer converter
+// rounding removed -- use with no_round test bench version
 // not intended to be synthesizable -- just shows the algorithm
 // CSE141L  
-module flt2int0(			     // my dummy placeholder for your design
+module flt2int(			     // my dummy placeholder for your design
   input              clk, 
                      reset, 
                      start,        //	request from test bench
@@ -45,16 +46,16 @@ always begin
   int_frac = {31'b0,|flt_in[14:10],flt_in[ 9: 0]};
   int_frac = int_frac<<exp;
   int_out  = int_frac[39:25];    // exp bias = 15; 10 bits of fraction
-  case({int_frac[25:24],|int_frac[23:0]})	 // round to nearest even
+/*  case({int_frac[25:24],|int_frac[23:0]})	 // round to nearest even
 	3'b011: int_out++;
 	3'b110:	int_out++;
 	3'b111:	int_out++;
-  endcase
-  if(&exp[4:1]) begin   
+  endcase */
+  if(&exp[4:1]) begin  
 // trap special max neg. case
-    if(sign) {dm1.mem_core[7],dm1.mem_core[6]} = 16'h8000;
+    if(sign)  {dm1.mem_core[7],dm1.mem_core[6]} = 16'h8000;
 // limit overflow to max. positive
-    else 	 {dm1.mem_core[7],dm1.mem_core[6]} = 16'h7fff;
+	else      {dm1.mem_core[7],dm1.mem_core[6]} = 16'h7fff;
   end
   else begin 
     if(int_frac[41:40]) int_frac[39:25] = 15'h7fff;
