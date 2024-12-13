@@ -41,7 +41,7 @@ module fltflt_tb();
 	.reset (reset),
 	.done  (done_test));
 
-  fltflt t1     (                 // your DUT would go here
+  fltflt0 t1     (                 // your DUT would go here
     .clk     (clk  ),		      // retain my dummy, above
     .start   (req  ),
 	.reset   (reset),			  // rename ports and module fltflt
