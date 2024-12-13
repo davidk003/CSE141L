@@ -23,7 +23,12 @@ module int2flt_tb_noround();
               score0,	     // your DUT vs. mine
 			  count=-1;      // number of trials
 			  
-  int2flt0 f0(				 // my dummy DUT to generate right answer
+//   int2flt0 f0(				 // my dummy DUT to generate right answer
+//     .clk  (clk),
+// 	.start(req),
+//     .reset(reset),
+//     .done (ack0));	         //
+  int2flt f0(				 // my dummy DUT to generate right answer
     .clk  (clk),
 	.start(req),
     .reset(reset),

@@ -33,8 +33,8 @@ wire Ack;              // done flag
 TopLevel DUT (
   .reset  (Reset),
   .Start  (Start),
-  .clk    (Clk ),
-  .done    (Ack )
+  .clk    (Clk),
+  .done    (Ack)
 );
 
 // This is the important part of the testbench, where logic might be added

@@ -8,9 +8,9 @@ module ALU(
 );
 
 Shifter Shifter_inst (
-    .operand(op2),
+    .operand(op1),
     .direction(control_in[0]),
-    .shift(Aluop[2:0]),
+    .shiftAmount(Aluop[2:0]),
     .result(op2)
 );
 

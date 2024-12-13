@@ -5,7 +5,7 @@ module LookUpTable(
     logic[8:0] constants[64];
     
     initial 
-	$readmemb("lookuptable.txt",constants);
+	$readmemb("lookuptable.txt", constants);
 
     always_comb value = constants[index];
 endmodule

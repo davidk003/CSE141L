@@ -50,16 +50,16 @@ module TopLevel(
   wire [7:0]   Rdat;            // Data memory data output
   wire [7:0]   Addr;            // Data memory address
 
-  wire         Jen;            // PC jump enable
-  wire         Par;            // ALU parity flag
-  wire         SCo;            // ALU shift/carry out
-  wire         Zero;           // ALU zero flag
-  wire         WenR, WenD;     // Write enables
-  wire         Ldr, Str;       // LOAD and STORE controls
-  wire         branch;
-  wire         memWrite;
-  wire         memRead;
-  wire         regWrite;
+  wire Jen; // PC jump enable
+
+  wire carry; //ALU carry out
+  wire lessThan
+  wire WenR, WenD;     // Write enables
+  wire Ldr, Str;       // LOAD and STORE controls
+  wire branch;
+  wire memWrite;
+  wire memRead;
+  wire regWrite;
   wire [4:0]   LUTIndex;
   wire         shiftDirection;
   wire [2:0]   shiftAmount;
@@ -116,7 +116,7 @@ module TopLevel(
   );
 
   ALU ALU_inst (
-      .control_in(Aluop[1:0]),    // Assuming control_in is lower 2 bits of Aluop
+      .control_in(Aluop[1:0]),
       .op1(DatA),
       .op2(DatB),
       .Aluop(Aluop),
@@ -125,8 +125,7 @@ module TopLevel(
       .lessThan(SCo)
   );
 
-  // Instantiate DataMemory
-  DataMemory DM_inst (
+  DataMemory data_mem1 (
       .clk(clk),
       .addr(Addr),
       .Wdat(WdatD),
@@ -140,44 +139,27 @@ module TopLevel(
           Done <= 1'b0;
       end else begin
           // Example: Set Done when PC reaches a specific value
-          if (PC == 8'hFF)
+          if (PC == 8'hFF) //CHANGE LATER WITH INSTRUCTION MEMORY LAST ADDRESS
               Done <= 1'b1;
           else
               Done <= 1'b0;
       end
   end
+  
 
-  // Address and Data Memory Control Logic
-  // Assuming that LOAD and STORE operations involve the LUT and DataMemory
-  // This example assumes that LUT is used to fetch an address or data
-  // Modify as per the actual instruction set architecture (ISA)
-
-  // Example: If memRead (LOAD) is active, set Addr from LUT value
-  // If memWrite (STORE) is active, set Addr from LUT value and data from ALU result
-  always_comb begin
-      if (memRead) begin
-          Addr = value;              // Address for LOAD from LUT
-          WdatD = Rslt;              // Data to write back from ALU
-      end else if (memWrite) begin
-          Addr = value;              // Address for STORE from LUT
-          WdatD = Rslt;              // Data to store from ALU
-      end else begin
-          Addr = 8'd0;
-          WdatD = 8'd0;
-      end
-  end
-
-  // Branch Control Logic
-  // If a branch is taken, set the Jump address accordingly
-  assign Jen = branch;
-  assign Jump = LUTIndex;          // Example: Jump address sourced from LUTIndex
-
-  assign Ra = mach_code[4:3];
-  assign Rb = mach_code[2:1];
-  assign Wd = mach_code[0];
-
-  // LUT Indexing
-  // Assuming that LUTIndex is used to fetch immediate values or addresses
-  assign index = LUTIndex;
+  // // Example: If memRead (LOAD) is active, set Addr from LUT value
+  // // If memWrite (STORE) is active, set Addr from LUT value and data from ALU result
+  // always_comb begin
+  //     if (memRead) begin
+  //         Addr = value;              // Address for LOAD from LUT
+  //         WdatD = Rslt;              // Data to write back from ALU
+  //     end else if (memWrite) begin
+  //         Addr = value;              // Address for STORE from LUT
+  //         WdatD = Rslt;              // Data to store from ALU
+  //     end else begin
+  //         Addr = 8'd0;
+  //         WdatD = 8'd0;
+  //     end
+  // end
 
 endmodule
