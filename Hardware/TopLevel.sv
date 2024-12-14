@@ -23,7 +23,10 @@ module TopLevel
 // LB(load byte) - 2 bit type (01), 3 bit opcode (001), 2 bit destination register (XX), 2 bit source memory address register (XX)
 // LL(load LUT) - 2 bit type (01), 3 bit opcode (010), 4-bit LUT index (XXXX)
 // LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX)
+
 // LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX)
+// LL2(Load LUT 2) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX) //2nd LUT loader
+// LLM(LOAD LUT Memory) - 2 bit type (01), 3 bit opcode (110), 2-bit register, 2-bit dummy //Loads from LUT register to desired register.
 
 // Branch(10) B Instruction Type
 // BEQ(Branch equal to) - 2 bit type (10), 2 bit opcode (00), 5 bit immediate for LUT index
