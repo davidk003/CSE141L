@@ -1,5 +1,5 @@
 #include <stdint.h>
-
+//Program 2: floatToFixed
 uint16_t concatFixed(uint8_t fixed1, uint8_t fixed2)
 {
     return (fixed1 << 8) | fixed2;
@@ -7,6 +7,7 @@ uint16_t concatFixed(uint8_t fixed1, uint8_t fixed2)
 
 uint16_t floatToFixed(uint8_t float1, uint8_t float2)
 {
+    uint8_t MAX_NEG_EXP = 0b01111000;
     uint8_t EXP_MASK = 0b01111100;
     uint8_t MSB_MASK = 0b10000000;
     uint8_t AND_MASK = 0b11111111;
@@ -17,20 +18,20 @@ uint16_t floatToFixed(uint8_t float1, uint8_t float2)
     uint8_t fixed2;
     // If the exponent indicates overflow (exp[4:1] all 1s):
     uint8_t exp1 = float1 & EXP_MASK;
-    if (exp1 == EXP_MASK)
+    if (exp1 == MAX_NEG_EXP)
     {
         // If sign bit is set (negative number):
         uint8_t sign1 = float1 & LEADING_ONE;
-        if (sign1)
+        if (sign1 == LEADING_ONE)
         {
-            fixed1 = 0x80;
-            fixed2 = 0x00;
+            fixed1 = 0b10000000;
+            fixed2 = 0b00000000;
             return concatFixed(fixed1, fixed2);
         }
         else
         {
-            fixed1 = 0x7F;
-            fixed2 = 0xFF;
+            fixed1 = 0b01111111;
+            fixed2 = 0b11111111;
             return concatFixed(fixed1, fixed2);
         }
     }
