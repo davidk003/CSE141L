@@ -1,5 +1,10 @@
 #include <stdint.h>
 
+uint16_t concatFixed(uint8_t float1, uint8_t float2)
+{
+    return (float1 << 8) | float2;
+}
+
 // 1 bit sign, 11 bit mantissa, 5 bit exponent
 uint16_t floatAdd(uint8_t op1_1, uint8_t op1_2, uint8_t op2_1, uint8_t op2_2)
 {
@@ -39,7 +44,7 @@ uint16_t floatAdd(uint8_t op1_1, uint8_t op1_2, uint8_t op2_1, uint8_t op2_2)
         res_exp++;
     }
 
-    return (res_sign | res_exp | res_mantissa);
+    
 
 }
 

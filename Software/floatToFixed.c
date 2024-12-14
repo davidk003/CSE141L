@@ -11,15 +11,15 @@ uint16_t floatToFixed(uint8_t float1, uint8_t float2)
     uint8_t MSB_MASK = 0b10000000;
     uint8_t AND_MASK = 0b11111111;
     uint8_t ZERO = 0b00000000;
+    uint8_t LEADING_ONE = 0b10000000;
     
     uint8_t fixed1;
     uint8_t fixed2;
     // If the exponent indicates overflow (exp[4:1] all 1s):
     uint8_t exp1 = float1 & EXP_MASK;
-    if (exp1 == 0b0111100)
+    if (exp1 == EXP_MASK)
     {
         // If sign bit is set (negative number):
-        uint8_t LEADING_ONE = 0b10000000;
         uint8_t sign1 = float1 & LEADING_ONE;
         if (sign1)
         {
@@ -45,11 +45,13 @@ uint16_t floatToFixed(uint8_t float1, uint8_t float2)
     
     // OR reduction with compare to 0 "|flt_in[14:10]"
     uint8_t exp = float1 & EXP_MASK;
-    if (exp != ZERO)
+    uint8_t OR_REDUCTION_MASK = 0b00000100;
+    uint8_t LAST2 = 0b00000011;
+    if (exp != ZERO) //If the or reduction is not 0, Or mask to int_frac_4
     {
-        int_frac_4 = int_frac_4 | 0b00000100;
+        int_frac_4 = int_frac_4 | OR_REDUCTION_MASK;
     }
-    uint8_t last2offloat1 = float1 & 0b00000011;
+    uint8_t last2offloat1 = float1 & LAST2;
     int_frac_4 = int_frac_4 | last2offloat1;
 
     // Shift int_frac left by the value of exp.
