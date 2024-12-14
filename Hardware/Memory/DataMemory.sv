@@ -1,7 +1,7 @@
 module DataMemory(
     input logic clk,
     input logic wen,
-    input logic ren,
+    // input logic ren, no read enable ig
     input logic [7:0] writeData,
     input logic [7:0] address,
     output logic [7:0] readData
@@ -9,13 +9,14 @@ module DataMemory(
 
     logic [7:0] core [256];
 
+    assign readData = core[address];
+
     always @(posedge clk) begin
         if(wen) begin
             core[address] <= writeData;
             $display("Writing: %d", writeData);
         end
-        else if(ren) begin
-            readData <= core[address];
+        else begin
             $display("Reading: %d", core[address]);
         end
     end

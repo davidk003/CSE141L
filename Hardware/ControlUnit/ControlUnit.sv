@@ -2,7 +2,7 @@ module ControlUnit(
     input logic [8:0] bits,
     input logic equal,
     input logic lessThan,
-    output logic branch,
+    output logic branchEnable,
     output logic memWrite,
     output logic memRead,
     output logic regWrite,
@@ -18,11 +18,12 @@ module ControlUnit(
         regWrite = 1'b0;
         memWrite = 1'b0;
         memRead = 1'b0;
-        branch = 1'b0;
+        branchEnable = 1'b0;
         LUTIndex = bits[4:0];
         Aluop = 3'b000;
         shiftDirection = 1'b0;
         shiftAmount = 3'b000;
+
         if(bits[8:7] == R) begin
             Aluop = bits[6:4];
         end
@@ -43,26 +44,44 @@ module ControlUnit(
         else if(bits[8:7] == B) begin
             case(bits[6:5])
                 2'b00: begin //BEQ
-                    if(equal) branch = 1'b1;
+                    if(equal) branchEnable = 1'b1;
                 end
                 2'b01: begin //BLT
-                    if(lessThan) branch = 1'b1;
+                    if(lessThan) branchEnable = 1'b1;
                 end
                 2'b10: begin //BLTE
-                    if(lessThan || equal) branch = 1'b1;
+                    if(lessThan || equal) branchEnable = 1'b1;
                 end
                 2'b11: begin //BUN
-                    branch = 1'b1;
+                    branchEnable = 1'b1;
                 end
                 default: begin
-                    branch = 1'b0;
+                    branchEnable = 1'b0;
                 end
             endcase
         end
-        else if(bits[8:7] == S) begin   
-            regWrite = 1'b1;
-            shiftDirection = bits[5];
-            shiftAmount = bits[2:0];
+        else if(bits[8:7] == S) begin  
+            case(bits[6:5])
+                2'b00: begin //LSL
+                    shiftDirection = 1'b0;
+                    shiftAmount = bits[4:0]; // 5-bit
+                    regWrite = 1'b1;
+                end
+                2'b01: begin //LSR
+                    shiftDirection = 1'b1;
+                    shiftAmount = bits[4:0];
+                    regWrite = 1'b1;
+                end
+                2'b10: begin //BF
+                    if(equal) branchEnable = 1'b1;
+                end
+                2'b11: begin //BB
+                    if(lessThan) branchEnable = 1'b1;
+                end
+                default: begin
+                    branchEnable = 1'b0;
+                end
+            endcase 
         end
     end
 endmodule: ControlUnit

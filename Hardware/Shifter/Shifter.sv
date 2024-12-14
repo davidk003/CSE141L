@@ -4,9 +4,9 @@ module Shifter(
     input logic[2:0] shiftAmount,
     output logic[7:0] result
 );
-    //Direction = 1 for left shift, 0 for right shift
+    //Direction = 0 for left shift, 1 for right shift
     always_comb begin
-        if (direction == 0) begin
+        if (direction == 1) begin
             result = operand >> shiftAmount;
         end
         else begin

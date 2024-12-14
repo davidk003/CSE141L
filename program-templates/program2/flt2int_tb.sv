@@ -19,7 +19,7 @@ module flt2int_tb_noround();
     .reset (reset),
     .start (req  ),
     .done  (ack0));				 
-  flt2int f3(.clk(clk),			 // your DUT goes here
+  flt2int0 f3(.clk(clk),			 // your DUT goes here
     .reset (reset),
     .start (req  ),
     .done  (ack) );				 

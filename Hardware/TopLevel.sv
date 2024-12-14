@@ -36,11 +36,9 @@ module TopLevel(
 // BF(Branch forwards) - 2 bit type (11), 2 bit opcode (10), 5 bit immediate for LUT index
 // BB(Branch backwards) - 2 bit type (11), 2 bit opcode (11), 5 bit immediate for LUT index
 
-  wire [5:0]   Jump;            // Assuming Jump address is 6 bits
   wire [7:0]   PC;
   wire [2:0]   Aluop;
   wire [1:0]   Ra, Rb, Wd;      // Updated to 2 bits based on RegisterFile
-  wire [2:0]   Jptr;            // Assuming Jptr remains 3 bits
   wire [8:0]   mach_code;
   wire [7:0]   DatA, DatB;      // ALU inputs
   wire [7:0]   Rslt;            // ALU output
@@ -50,16 +48,25 @@ module TopLevel(
   wire [7:0]   Rdat;            // Data memory data output
   wire [7:0]   Addr;            // Data memory address
 
-  wire Jen; // PC jump enable
+
+  wire jumpEnable; // PC jump enable
+  wire branchEnable;
 
   wire carry; //ALU carry out
-  wire lessThan
+
+  // Comparison flags
+  wire equal; // ALU equal flag
+  wire lessThan; // ALU less than flag
+
+  // Memory control signals
   wire WenR, WenD;     // Write enables
   wire Ldr, Str;       // LOAD and STORE controls
-  wire branch;
   wire memWrite;
   wire memRead;
   wire regWrite;
+
+  wire [7:0] jumpAmount;
+
   wire [4:0]   LUTIndex;
   wire         shiftDirection;
   wire [2:0]   shiftAmount;
@@ -79,8 +86,8 @@ module TopLevel(
   ProgramCounter PC_inst (
       .clk(clk),
       .reset(reset),
-      .jumpEnable(Jen),
-      .jump(Jump),
+      .jumpEnable(jumpEnable),
+      .jumpAmount(jumpAmount),
       .count(PC)
   );
 
@@ -91,9 +98,9 @@ module TopLevel(
 
   ControlUnit CU_inst (
       .bits(mach_code),
-      .equal(Zero),
-      .lessThan(SCo),
-      .branch(branch),
+      .equal(equal),
+      .lessThan(lessThan),
+      .branchEnable(branchEnable),
       .memWrite(memWrite),
       .memRead(memRead),
       .regWrite(regWrite),
@@ -127,10 +134,10 @@ module TopLevel(
 
   DataMemory data_mem1 (
       .clk(clk),
-      .addr(Addr),
-      .Wdat(WdatD),
-      .Rdat(Rdat),
-      .Wen(memWrite)
+      .address(Addr),
+      .writeData(WdatD),
+      .readData(Rdat),
+      .wen(memWrite)
   );
 
   // Logic to determine Done signal (example condition)
