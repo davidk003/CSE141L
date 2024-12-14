@@ -1,4 +1,5 @@
-module TopLevel(
+module TopLevel
+(
   input wire clk,
   input wire reset,
   input wire start,
@@ -113,13 +114,13 @@ module TopLevel(
   // Register file contains 4 * 8-bit registers
   RegisterFile RF_inst (
       .clk(clk),
-      .Wen(regWrite),
-      .Ra(Ra),
-      .Rb(Rb),
-      .Wd(Wd),
-      .Wdat(WdatR),
-      .RdatA(RdatA),
-      .RdatB(RdatB)
+      .wen(regWrite),
+      .r_addr1(Ra),
+      .r_addr2(Rb),
+      .w_addr(Wd),
+      .dataIn(WdatR),
+      .dataOut1(RdatA),
+      .dataOut2(RdatB)
   );
 
   ALU ALU_inst (
@@ -146,7 +147,7 @@ module TopLevel(
           Done <= 1'b0;
       end else begin
           // Example: Set Done when PC reaches a specific value
-          if (PC == 8'hFF) //CHANGE LATER WITH INSTRUCTION MEMORY LAST ADDRESS
+          if (PC == 8'hFF || mach_code == 9'b0)//IF PC hits certain number of 0 instruction, finish.
               Done <= 1'b1;
           else
               Done <= 1'b0;

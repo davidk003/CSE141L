@@ -26,6 +26,37 @@ module ControlUnit(
 
         if(bits[8:7] == R) begin
             Aluop = bits[6:4];
+            case(bits[3:0])
+                4'b0000: begin //AND
+                    regWrite = 1'b1;
+                end
+                4'b0001: begin //OR
+                    regWrite = 1'b1;
+                end
+                4'b0010: begin //XOR
+                    regWrite = 1'b1;
+                end
+                4'b0011: begin //ADD
+                    regWrite = 1'b1;
+                end
+                4'b0100: begin //SUB
+                    regWrite = 1'b1;
+                end
+                4'b0101: begin //SLT
+                    regWrite = 1'b0;
+                end
+                4'b0110: begin //SLTE
+                    regWrite = 1'b0;
+                end
+                4'b0111: begin //EQ
+                    regWrite = 1'b0;
+                end
+                default: begin
+                    regWrite = 1'b0;
+                    memRead = 1'b0;
+                    memWrite = 1'b0;
+                end
+        endcase
         end
         else if(bits[8:7] == M) begin
             case(bits[6:4])

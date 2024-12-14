@@ -2,6 +2,7 @@ module ALU_mux (
 	input logic [1:0] instruction_type,
 	input logic [1:0] reg1,
 	input logic [1:0] reg2,
+	input logic writeRegEnable,
 	output logic [7:0] op1,
 	output logic [7:0] op2
    );

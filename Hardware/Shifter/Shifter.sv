@@ -1,7 +1,7 @@
 module Shifter(
     input logic[7:0] operand,
+    input logic[7:0] shiftOperand,
     input logic direction,
-    input logic[2:0] shiftAmount,
     output logic[7:0] result
 );
     //Direction = 0 for left shift, 1 for right shift
