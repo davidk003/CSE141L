@@ -47,20 +47,8 @@ module int2flt(
             int1 = int1<<1'b1;	// looks for position of leading one
 	          exp--;				        // decrement exponent every time we double mant.
 	      end
-		  else break; 
+		  else break;
 		end
-//		$display("preround exp = %d",exp);
-// rounding
-//        if(&int1[14:3]) begin		   // round-induced overflow
-//		  exp++;
-//		  int1 ='0;		               // output mantissa = 0
-//		end
-//        else if(int1[4]||int1[2:0]) begin
-//          $display("I get a round %b",int_int);
-//          int1 = int1+{int1[3],3'b0}; 
-//          $display("%b",int_int);
-//		end
-//		$display("postround exp = %d",exp);  
         {data_mem1.mem_core[3],data_mem1.mem_core[2]} = {sgn,exp[4:0],int1[13:4]};	// exp is only 5 bits!
       end
 	  #2000ns done = '1;                   // adjust as needed for your design

@@ -2,6 +2,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
+//DEPRECATED
+//DEPRECATED
+//DEPRECATED
+//DEPRECATED
+//DEPRECATED
+//DEPRECATED
+
+
 // Converts 2 halves of 8 bit fixed point number to a 16 bit float
 uint16_t fixedToFloat(uint8_t fixed1, uint8_t fixed2) {
     //Case for minimum possible and zero float.
