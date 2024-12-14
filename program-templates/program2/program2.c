@@ -13,19 +13,62 @@ uint16_t testFunction(uint8_t input1, uint8_t input2) {
 int main() {
     // Updated test cases
     uint8_t inputs1[] = {
-        0b00000000, 0b00000001, 0b00000010, 0b00000011, 0b00111100, 0b11001100,
-        0b11110000, 0b10101010, 0b01010101, 0b01111111, 0b10000000, 0b11111111,
-        0b01000000, 0b10010010, 0b11111100, 0b01101100, 0b10010101, 0b00001111,
-        0b00100101, 0b11010101, 0b00101010, 0b11100000, 0b00011000, 0b10001000,
-        0b01010111
-    };
+    0b00000000, // Test case 1
+    0b00000000, // Test case 2
+    0b00000000, // Test case 3
+    0b00000000, // Test case 4
+    0b00000000, // Test case 5
+    0b00000000, // Test case 6
+    0b00000000, // Test case 7
+    0b00000000, // Test case 8
+    0b00000011, // Test case 9
+    0b00000111, // Test case 10
+    0b01111000, // Test case 11
+    0b01111111, // Test case 12
+    0b00000000, // Test case 13
+    0b11111111, // Test case 14
+    0b11111111, // Test case 15
+    0b11111111, // Test case 16
+    0b11111111, // Test case 17
+    0b11111111, // Test case 18
+    0b11111111, // Test case 19
+    0b11111111, // Test case 20
+    0b11111111, // Test case 21
+    0b11111100, // Test case 22
+    0b11111001, // Test case 23
+    0b10001000, // Test case 24
+    0b10000000  // Test case 25
+};
     uint8_t inputs2[] = {
-        0b00000000, 0b00000010, 0b00000100, 0b00000110, 0b11111111, 0b10101010,
-        0b01101101, 0b00110011, 0b11001100, 0b00000001, 0b01111111, 0b00000000,
-        0b10101010, 0b11001100, 0b00111111, 0b01010101, 0b11100000, 0b01111000,
-        0b00001111, 0b10101010, 0b11111111, 0b10000001, 0b01100110, 0b00111100,
-        0b10101010
+        0b00000000, // Test case 1
+        0b00000001, // Test case 2
+        0b00000010, // Test case 3
+        0b00000011, // Test case 4
+        0b00000010, // Test case 5
+        0b00000010, // Test case 6
+        0b00001110, // Test case 7
+        0b00001111, // Test case 8
+        0b10000000, // Test case 9
+        0b10000000, // Test case 10
+        0b00000000, // Test case 11
+        0b11111111, // Test case 12
+        0b00000000, // Test case 13
+        0b11111111, // Test case 14
+        0b11111111, // Test case 15
+        0b11111110, // Test case 16
+        0b11111101, // Test case 17
+        0b11111110, // Test case 18
+        0b11111110, // Test case 19
+        0b11110010, // Test case 20
+        0b11110001, // Test case 21
+        0b10000000, // Test case 22
+        0b10000000, // Test case 23
+        0b00000000, // Test case 24
+        0b00000000  // Test case 25
     };
+
+
+
     uint16_t trueOutputs[] = {
     0b0000000000000000, // Test case 1
     0b0000000000000001, // Test case 2
