@@ -1,14 +1,15 @@
-module ALU_mux ( 
+module ALUInMux ( 
 	input logic [1:0] instruction_type,
 	input logic [1:0] reg1,
 	input logic [1:0] reg2,
-	input logic writeRegEnable,
+	input logic [2:0] Aluop,
 	output logic [7:0] op1,
 	output logic [7:0] op2
    );
-	
+   //Mux input for ALU
+
 always_comb begin
-	if(instruction_type == 2'b00) begin //R type normal usage
+	if(Aluop == 3'b000) begin
 		op1 = reg1;
 		op2 = reg2;
 	end

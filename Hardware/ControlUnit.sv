@@ -73,15 +73,15 @@ module ControlUnit(
                     memRead = 1'b1;
                     LUTen = 1'b1;
                 end
-                3'b011: begin //Load immediate lower
-                    regWrite = 1'b1;
-                end
-                3'b100: begin //Load immediate upper
-                    regWrite = 1'b1;
-                end
-                3'b101: begin //Load LUT 2
+                3'b011: begin //Load LUT 2
                     memRead = 1'b1;
                     LUTen = 1'b1;
+                end
+                3'b100: begin //Load immediate lower
+                    regWrite = 1'b1;
+                end
+                3'b101: begin //Load immediate upper
+                    regWrite = 1'b1;
                 end
                 3'b110: begin //Load LUT Memory
                     regWrite = 1'b1;

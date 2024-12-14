@@ -1,18 +1,20 @@
 module ALU(
-    input logic control_in,
     input logic[7:0] op1, op2,
     input logic[2:0] Aluop,
+    input logic shift,
+    input logic shiftDirection,
     output logic[7:0] result,
     output logic equal,
     output logic lessThan
 );
 
+logic [7:0] muxResult;
 
 Shifter Shifter_inst (
     .operand(op1),
-    .direction(control_in[0]),
-    .shiftAmount(Aluop[2:0]),
-    .result()
+    .shiftOperand(op2),
+    .direction(shiftDirection),
+    .result(muxResult)
 );
 
     always_comb begin

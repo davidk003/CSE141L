@@ -22,10 +22,10 @@ module TopLevel
 // SB(store byte) - 2 bit type (01), 3 bit opcode (000), 2 bit destination memory address register (XX), 2 bit source (XX)
 // LB(load byte) - 2 bit type (01), 3 bit opcode (001), 2 bit destination register (XX), 2 bit source memory address register (XX)
 // LL(load LUT) - 2 bit type (01), 3 bit opcode (010), 4-bit LUT index (XXXX)
-// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX)
+// LL2(Load LUT 2) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX) //2nd LUT loader
 
-// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX)
-// LL2(Load LUT 2) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX) //2nd LUT loader
+// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX)
+// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX)
 // LLM(LOAD LUT Memory) - 2 bit type (01), 3 bit opcode (110), 2-bit register, 2-bit dummy //Loads from LUT register to desired register.
 
 // Branch(10) B Instruction Type
@@ -42,9 +42,9 @@ module TopLevel
 
   wire [7:0]   PC;
   wire [2:0]   Aluop;
-  wire [1:0]   Ra, Rb, Wd;      // Updated to 2 bits based on RegisterFile
+  wire [1:0]   r_addr1, r_addr2, w_addr;
   wire [8:0]   mach_code;
-  wire [7:0]   DatA, DatB;      // ALU inputs
+  wire [7:0]   data1, data2;      // ALU inputs
   wire [7:0]   Rslt;            // ALU output
   wire [7:0]   RdatA, RdatB;    // RegFile outputs
   wire [7:0]   WdatR;           // RegFile data input (from ALU)
@@ -62,11 +62,11 @@ module TopLevel
   wire equal; // ALU equal flag
   wire lessThan; // ALU less than flag
 
-  // Memory control signals
+  // Data Memory control signals
   wire WenR, WenD;     // Write enables
   wire Ldr, Str;       // LOAD and STORE controls
-  wire memWrite;
-  wire memRead;
+  wire mem_write_en;
+  wire mem_read_en;
   wire regWrite;
 
   wire [7:0] jumpAmount;
@@ -78,8 +78,8 @@ module TopLevel
   logic [7:0]  index;
   logic [7:0]  value;
 
-  assign DatA = RdatA;          // ALU operand A from RegFile
-  assign DatB = RdatB;          // ALU operand B from RegFile
+  assign data1 = RdatA;          // ALU operand A from RegFile
+  assign data2 = RdatB;          // ALU operand B from RegFile
   assign WdatR = Rslt;          // ALU result to RegFile
 
   LookUpTable LUT_inst (
@@ -102,11 +102,14 @@ module TopLevel
 
   ControlUnit CU_inst (
       .bits(mach_code),
+
       .equal(equal),
       .lessThan(lessThan),
+
+      .LUTen(LUTen),
       .branchEnable(branchEnable),
-      .memWrite(memWrite),
-      .memRead(memRead),
+      .memWrite(mem_write_en),
+      .memRead(mem_read_en),
       .regWrite(regWrite),
       .LUTIndex(LUTIndex),
       .Aluop(Aluop),
@@ -118,9 +121,9 @@ module TopLevel
   RegisterFile RF_inst (
       .clk(clk),
       .wen(regWrite),
-      .r_addr1(Ra),
-      .r_addr2(Rb),
-      .w_addr(Wd),
+      .r_addr1(r_addr1),
+      .r_addr2(r_addr2),
+      .w_addr(w_addr),
       .dataIn(WdatR),
       .dataOut1(RdatA),
       .dataOut2(RdatB)
@@ -128,11 +131,11 @@ module TopLevel
 
   ALU ALU_inst (
       .control_in(Aluop[1:0]),
-      .op1(DatA),
-      .op2(DatB),
+      .op1(data1),
+      .op2(data2),
       .Aluop(Aluop),
       .result(Rslt),
-      .equal(Zero),
+      .equal(equal),
       .lessThan(SCo)
   );
 
@@ -141,20 +144,25 @@ module TopLevel
       .address(Addr),
       .writeData(WdatD),
       .readData(Rdat),
-      .wen(memWrite)
+      .wen(mem_write_en)
   );
 
   // Logic to determine Done signal (example condition)
   always_ff @(posedge clk or posedge reset) begin
-      if (reset) begin
-          Done <= 1'b0;
-      end else begin
-          // Example: Set Done when PC reaches a specific value
-          if (PC == 8'hFF || mach_code == 9'b0)//IF PC hits certain number of 0 instruction, finish.
-              Done <= 1'b1;
-          else
-              Done <= 1'b0;
-      end
+        if (reset) begin
+            Done <= 1'b0;
+        end else begin
+            // Example: Set Done when PC reaches a specific value
+            if (PC == 8'hFF || mach_code == 9'b0)//IF PC hits certain number of 0 instruction, finish.
+                Done <= 1'b1;
+                $display("Done, dumping registers");
+                $display("R0 | Decimal: %d, Binary: %b", RF_inst.Core[0], RF_inst.Core[0]);
+                $display("R1 | Decimal: %d, Binary: %b", RF_inst.Core[1], RF_inst.Core[1]);
+                $display("R2 | Decimal: %d, Binary: %b", RF_inst.Core[2], RF_inst.Core[2]);
+                $display("R3 | Decimal: %d, Binary: %b", RF_inst.Core[3], RF_inst.Core[3]);
+            else
+                Done <= 1'b0;
+        end
   end
   
 
