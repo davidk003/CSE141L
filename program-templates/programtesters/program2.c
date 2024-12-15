@@ -14,8 +14,36 @@ void printBinary(uint8_t num) {
     }
 }
 
-
 int main() {
+    uint16_t testCases[] = {
+        0b0000000000000000, // Test case 1
+        0b0011110000000000, // Test case 2
+        0b0100000000000000, // Test case 3
+        0b0100001000000000, // Test case 4
+        0b0100000001000000, // Test case 5
+        0b0100000001000000, // Test case 6
+        0b0100101100000000, // Test case 7
+        0b0100101110000000, // Test case 8
+        0b0110001100000000, // Test case 9
+        0b0110011100000000, // Test case 10
+        0b0111011110000000, // Test case 11
+        0b0111101110000000, // Test case 12
+        0b1000000000000000, // Test case 13
+        0b1011110000000000, // Test case 14
+        0b1011110100000000, // Test case 15
+        0b1100000000000000, // Test case 16
+        0b1100001000000000, // Test case 17
+        0b1100000001000000, // Test case 18
+        0b1100000001000000, // Test case 19
+        0b1100101100000000, // Test case 20
+        0b1100101110000000, // Test case 21
+        0b1110001100000000, // Test case 22
+        0b1110011100000000, // Test case 23
+        0b1111011110000000, // Test case 24
+        0b1111101110000000  // Test case 25
+    };
+
+
     uint16_t trueOutputs[] = {
         0b0000000000000000, // Test case 1
         0b0000000000000001, // Test case 2
@@ -52,8 +80,8 @@ int main() {
 
     // Populate inputs1 with the first 8 bits and inputs2 with the last 8 bits
     for (int i = 0; i < numTestCases; i++) {
-        inputs1[i] = (trueOutputs[i] >> 8) & 0xFF; // Extract the first 8 bits (higher byte)
-        inputs2[i] = trueOutputs[i] & 0xFF;        // Extract the last 8 bits (lower byte)
+        inputs1[i] = (testCases[i] >> 8) & 0xFF; // Extract the first 8 bits (higher byte)
+        inputs2[i] = testCases[i] & 0xFF;        // Extract the last 8 bits (lower byte)
     }
 
     
@@ -71,7 +99,6 @@ int main() {
         printBinary(inputs2[i]);
         printf("\n");
     }
-
 
 
     // Iterate over the test cases
