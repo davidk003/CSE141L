@@ -7,7 +7,7 @@ module ControlUnit(
     output logic memRead,
     output logic regWrite,
     output logic LUTen,
-    output logic [3:0] LUTIndex,
+    output logic [4:0] LUTIndex,
     output logic [2:0] Aluop,
     output logic shiftEnable,
     output logic shiftDirection,

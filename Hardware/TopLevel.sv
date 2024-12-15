@@ -70,8 +70,8 @@ module TopLevel
   // Data Memory control signals
   wire WenR, WenD;     // Write enables
   wire Ldr, Str;       // LOAD and STORE controls
-  wire mem_write_en;
-  wire mem_read_en;
+  wire memWriteEnable;
+  wire memReadEnable;
   wire regWrite;
 
   wire [7:0] jumpAmount;
@@ -80,7 +80,7 @@ module TopLevel
   wire         shiftDirection;
   wire [2:0]   shiftAmount;
 
-  logic [7:0]  index;
+  logic [4:0]  index;
   logic [7:0]  value;
 
   wire [7:0] ALUop1, ALUop2;
@@ -89,9 +89,16 @@ module TopLevel
   assign data2 = RdatB;          // ALU operand B from RegFile
   assign WdatR = Rslt;          // ALU result to RegFile
 
+  assign index = LUTIndex;
+
   LookUpTable LUT_inst (
       .index(index),
       .value(value)
+  );
+
+  LookUpTable branchLUT (
+      .index(),
+      .value()
   );
 
   ProgramCounter PC_inst (
@@ -115,8 +122,8 @@ module TopLevel
     //   .immediate(),,
       .LUTen(LUTen),
       .branchEnable(branchEnable),
-      .memWrite(mem_write_en),
-      .memRead(mem_read_en),
+      .memWrite(memWriteEnable),
+      .memRead(memReadEnable),
       .regWrite(regWrite),
       .LUTIndex(LUTIndex),
       .Aluop(Aluop),
@@ -160,8 +167,8 @@ module TopLevel
       .clk(clk),
       .address(Addr),
       .writeData(WdatD),
-      .readData(Rdat),
-      .wen(mem_write_en)
+      .dataMemoryOut(Rdat),
+      .wen(memWriteEnable)
   );
 
   // Logic to determine Done signal (example condition)

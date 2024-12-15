@@ -1,8 +1,8 @@
 module LookUpTable(
-    input logic [7:0] index,
+    input logic [4:0] index,
     output logic[7:0] value
 );
-    logic[8:0] constants[64];
+    logic[8:0] constants[32];
     
     initial 
 	$readmemb("lookuptable.txt", constants);
