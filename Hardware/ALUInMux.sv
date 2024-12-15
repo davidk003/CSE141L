@@ -9,7 +9,7 @@ module ALUInMux (
 	//Mux for ALU input, 
 
 always_comb begin
-	if (shiftEnable) begin
+	if (shiftImmediateEnable) begin
 		ALUin1 = operand1;
 		ALUop2 = shiftImmediate;
 	end

@@ -21,12 +21,13 @@ module TopLevel
 // Memory(01) M Instruction Type
 // SB(store byte) - 2 bit type (01), 3 bit opcode (000), 2 bit destination memory address register (XX), 2 bit source (XX)
 // LB(load byte) - 2 bit type (01), 3 bit opcode (001), 2 bit destination register (XX), 2 bit source memory address register (XX)
-// LL(load LUT) - 2 bit type (01), 3 bit opcode (010), 4-bit LUT index (XXXX)
-// LL2(Load LUT 2) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX) //2nd LUT loader
+// LL(load LUT val) - 2 bit type (01), 3 bit opcode (010), 4-bit LUT index (XXXX) //1st LUT loader, Load value into special reg
+// LL2(Load LUT 2 val) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX) //2nd LUT loader, Load value into special reg
 
-// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX)
-// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX)
-// LLM(LOAD LUT Memory) - 2 bit type (01), 3 bit opcode (110), 2-bit register, 2-bit dummy //Loads from LUT register to desired register.
+// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX) //Load lower value into reg 3
+// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX) //Load upper value into reg 3
+// LLR(Load LUTreg to main Register) - 2 bit type (01), 3 bit opcode (110), 2-bit register, 2-bit dummy //Loads from special LUT register to desired register.
+
 
 // Branch(10) B Instruction Type
 // BEQ(Branch equal to) - 2 bit type (10), 2 bit opcode (00), 5 bit immediate for LUT index
@@ -75,21 +76,29 @@ module TopLevel
   wire regWrite;
 
   wire [7:0] jumpAmount;
+  wire [7:0] branchLUTIndex;
 
-  wire [4:0]   LUTIndex;
   wire         shiftDirection;
   wire [2:0]   shiftAmount;
 
-  logic [4:0]  index;
-  logic [7:0]  value;
+  wire [7:0]  LUTIndex;
+  wire [7:0]  index;
+  wire [7:0]  value;
 
   wire [7:0] ALUop1, ALUop2;
+
+  logic [7:0] LUTreg;
+  wire LUTwrite;
 
   assign data1 = RdatA;          // ALU operand A from RegFile
   assign data2 = RdatB;          // ALU operand B from RegFile
   assign WdatR = Rslt;          // ALU result to RegFile
 
   assign index = LUTIndex;
+
+  assign jumpEnable = branchEnable;
+
+  assign LUTreg = LUTwrite ? value : LUTreg;
 
   LookUpTable LUT_inst (
       .index(index),
@@ -98,7 +107,7 @@ module TopLevel
 
   LookUpTable branchLUT (
       .index(),
-      .value()
+      .value(jumpAmount)
   );
 
   ProgramCounter PC_inst (
@@ -120,7 +129,7 @@ module TopLevel
       .equal(equal),
       .lessThan(lessThan),
     //   .immediate(),,
-      .LUTen(LUTen),
+      .LUTwrite(LUTwrite),
       .branchEnable(branchEnable),
       .memWrite(memWriteEnable),
       .memRead(memReadEnable),
@@ -128,7 +137,7 @@ module TopLevel
       .LUTIndex(LUTIndex),
       .Aluop(Aluop),
       .shiftDirection(shiftDirection),
-      .shiftAmount(shiftAmount),
+      .shiftImmediate(shiftImmediate),
       .shiftEnable(shiftEnable)
   );
 
@@ -148,7 +157,7 @@ module TopLevel
       .shiftImmediateEnable(),,
       .operand1(data1),
       .operand2(data2),
-      .shiftImmediate(shiftAmount),
+      .shiftImmediate(shiftImmediate),
       .ALUop1(ALUop1),
       .ALUop2(ALUop2)
   );
