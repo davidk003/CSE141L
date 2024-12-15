@@ -5,6 +5,7 @@ module ProgramCounter(
 );
 
 always @(posedge clk) begin
+    $display("PC: %d", count);
     if(reset) count <= 8'b0;
     else if(jumpEnable) count <= jumpAmount;
     else count <= count + 8'b1;

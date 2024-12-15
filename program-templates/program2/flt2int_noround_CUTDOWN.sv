@@ -43,14 +43,20 @@ always begin
   sign     = flt_in[15];
   exp      = flt_in[14:10];
 // leave room for large and small exponents 
+  // if(flt_in == 16'b0100000000000000) begin
+  //   $display("Shifted: %b", int_frac<<exp);
+  //   $display("OR REDUCTION: %b", |flt_in[14:10]);
+  // end
+
+  $display("OR REDUCTION: %b", |flt_in[14:10]);
   int_frac = {29'b0,|flt_in[14:10],flt_in[ 9: 0]};
   int_frac = int_frac<<exp;
   int_out  = int_frac[39:25];    // exp bias = 15; 10 bits of fraction
-/*  case({int_frac[25:24],|int_frac[23:0]})	 // round to nearest even
-	3'b011: int_out++;
-	3'b110:	int_out++;
-	3'b111:	int_out++;
-  endcase */
+  $display("Sign: %b", sign);
+  $display("Exponent: %d", exp);
+  $display("Shifted: %b", int_frac);
+  $display("Fraction: %b", int_frac[39:25]);
+
   if(&exp[4:1]) begin  
 // trap special max neg. case
     if(sign)  {dm1.mem_core[7],dm1.mem_core[6]} = 16'h8000;
