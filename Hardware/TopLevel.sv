@@ -37,6 +37,10 @@ module TopLevel
 // Shift and other(11) S Instruction Type
 // LSL(Left shift) - 2 bit type (11), 2 bit opcode (00), 2 bit operand destination register, 2-bit register shift amount, 1-bit dummy
 // LSR(Right shift) - 2 bit type (11), 2 bit opcode (01), 2 bit operand destination register, 2-bit register shift amount, 1-bit dummy
+// LSI(Left shift immediate) - 2 bit type (11), 2 bit opcode (10), 5 bit immediate in instruction for shift amount
+// RSI(Right shift immediate) - 2 bit type (11), 2 bit opcode (11), 5 bit immediate in instruction for shift amount
+
+//DEPRECATE BRANCHING DIRECTION FOR ABSOLUTE ADDRESSING
 // BF(Branch forwards) - 2 bit type (11), 2 bit opcode (10), 5 bit immediate for LUT index
 // BB(Branch backwards) - 2 bit type (11), 2 bit opcode (11), 5 bit immediate for LUT index
 
@@ -79,6 +83,8 @@ module TopLevel
   logic [7:0]  index;
   logic [7:0]  value;
 
+  wire [7:0] ALUop1, ALUop2;
+
   assign data1 = RdatA;          // ALU operand A from RegFile
   assign data2 = RdatB;          // ALU operand B from RegFile
   assign WdatR = Rslt;          // ALU result to RegFile
@@ -106,7 +112,7 @@ module TopLevel
 
       .equal(equal),
       .lessThan(lessThan),
-      .immediate(),,
+    //   .immediate(),,
       .LUTen(LUTen),
       .branchEnable(branchEnable),
       .memWrite(mem_write_en),
@@ -131,10 +137,18 @@ module TopLevel
       .dataOut2(RdatB)
   );
 
+    ALUInMux ALUInMux_inst (
+      .shiftImmediateEnable(),,
+      .operand1(data1),
+      .operand2(data2),
+      .shiftImmediate(shiftAmount),
+      .ALUop1(ALUop1),
+      .ALUop2(ALUop2)
+  );
+
   ALU ALU_inst (
-      .control_in(Aluop[1:0]),
-      .op1(data1),
-      .op2(data2),
+      .op1(ALUop1),
+      .op2(ALUop2),
       .Aluop(Aluop),
       .result(Rslt),
       .shiftEnable(shiftEnable),
@@ -153,18 +167,21 @@ module TopLevel
   // Logic to determine Done signal (example condition)
   always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
-            Done <= 1'b0;
+            done <= 1'b0;
         end else begin
             // Example: Set Done when PC reaches a specific value
             if (PC == 8'hFF || mach_code == 9'b0)//IF PC hits certain number of 0 instruction, finish.
-                Done <= 1'b1;
+            begin
+                done <= 1'b1;
                 $display("Done, dumping registers");
                 $display("R0 | Decimal: %d, Binary: %b", RF_inst.Core[0], RF_inst.Core[0]);
                 $display("R1 | Decimal: %d, Binary: %b", RF_inst.Core[1], RF_inst.Core[1]);
                 $display("R2 | Decimal: %d, Binary: %b", RF_inst.Core[2], RF_inst.Core[2]);
                 $display("R3 | Decimal: %d, Binary: %b", RF_inst.Core[3], RF_inst.Core[3]);
-            else
-                Done <= 1'b0;
+            end
+            else begin
+                done <= 1'b0;
+			    end
         end
   end
   

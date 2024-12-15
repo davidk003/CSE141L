@@ -7,25 +7,28 @@ module ControlUnit(
     output logic memRead,
     output logic regWrite,
     output logic LUTen,
-    output logic [4:0] LUTIndex,
+    output logic [3:0] LUTIndex,
     output logic [2:0] Aluop,
+    output logic shiftEnable,
     output logic shiftDirection,
-    output logic [2:0] shiftAmount,
-    output logic immediate
+    output logic [2:0] shiftAmount
+    // output logic immediate
 );
-    typedef enum {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
+    typedef enum logic [1:0] {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
     instruction_type instruction;
 
     always begin
+        shiftEnable = 1'b0;
         regWrite = 1'b0;
         memWrite = 1'b0;
         memRead = 1'b0;
         branchEnable = 1'b0;
-        LUTIndex = bits[4:0];
+        LUTIndex = 4'b0000;
         Aluop = 3'b000;
         shiftDirection = 1'b0;
         shiftAmount = 3'b000;
         LUTen = 1'b0;
+        // immediate = 1'b0;
         
 
         if(bits[8:7] == R) begin
@@ -73,16 +76,20 @@ module ControlUnit(
                 3'b010: begin //Load LUT
                     memRead = 1'b1;
                     LUTen = 1'b1;
+                    LUTIndex = bits[3:0];
                 end
                 3'b011: begin //Load LUT 2
                     memRead = 1'b1;
                     LUTen = 1'b1;
+                    LUTIndex = bits[3:0];
                 end
                 3'b100: begin //Load immediate lower
                     regWrite = 1'b1;
+                    LUTIndex = bits[3:0];
                 end
                 3'b101: begin //Load immediate upper
                     regWrite = 1'b1;
+                    LUTIndex = bits[3:0];
                 end
                 3'b110: begin //Load LUT Memory
                     regWrite = 1'b1;
@@ -115,20 +122,32 @@ module ControlUnit(
         else if(bits[8:7] == S) begin  
             case(bits[6:5])
                 2'b00: begin //LSL
+                    shiftEnable = 1'b1;
                     shiftDirection = 1'b0;
                     shiftAmount = bits[4:0]; // 5-bit
                     regWrite = 1'b1;
                 end
                 2'b01: begin //LSR
+                    shiftEnable = 1'b1;
                     shiftDirection = 1'b1;
                     shiftAmount = bits[4:0];
                     regWrite = 1'b1;
                 end
-                2'b10: begin //BF
-                    if(equal) branchEnable = 1'b1;
+                2'b10: begin //LSI
+                    if(equal) begin
+                        shiftEnable = 1'b1;
+                        shiftDirection = 1'b0;
+                        shiftAmount = bits[4:0]; //5-bit immediate
+                        regWrite = 1'b1;
+                    end
                 end
-                2'b11: begin //BB
-                    if(lessThan) branchEnable = 1'b1;
+                2'b11: begin //RSI
+                    if(lessThan) begin
+                        shiftEnable = 1'b1;
+                        shiftDirection = 1'b1;
+                        shiftAmount = bits[4:0]; //5-bit immediate
+                        regWrite = 1'b1;
+                    end
                 end
                 default: begin
                     branchEnable = 1'b0;

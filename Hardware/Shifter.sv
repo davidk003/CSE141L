@@ -1,6 +1,6 @@
 module Shifter(
     input logic[7:0] operand,
-    input logic[7:0] shiftOperand,
+    input logic[7:0] shiftAmount,
     input logic direction,
     output logic[7:0] result
 );

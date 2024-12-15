@@ -4,12 +4,12 @@ module InstructionMemory(
 
   logic[8:0] Core[256];
 
-  initial
+  initial begin
   for (int i = 0; i < 256; i++) begin
       Core[i] = 9'b0;
   end
-	$readmemb("mach_code.txt", Core);
-
+  $readmemb("mach_code.txt", Core);
+  end
   always_comb mach_code = Core[PC];
 
 endmodule

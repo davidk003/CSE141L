@@ -5,7 +5,7 @@ module RegisterFile(
   input[1:0] r_addr2,     // read address pointer B
   input[1:0] w_addr,	 // write address pointer
   input[7:0] dataIn,   // write data in
-  output[7:0] dataOut1
+  output[7:0] dataOut1,
   output[7:0] dataOut2
             //  RdatB
   ); // read data out B
