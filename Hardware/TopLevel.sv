@@ -55,6 +55,7 @@ module TopLevel
 
   wire jumpEnable; // PC jump enable
   wire branchEnable;
+  wire shiftEnable;
 
   wire carry; //ALU carry out
 
@@ -105,7 +106,7 @@ module TopLevel
 
       .equal(equal),
       .lessThan(lessThan),
-
+      .immediate(),,
       .LUTen(LUTen),
       .branchEnable(branchEnable),
       .memWrite(mem_write_en),
@@ -114,7 +115,8 @@ module TopLevel
       .LUTIndex(LUTIndex),
       .Aluop(Aluop),
       .shiftDirection(shiftDirection),
-      .shiftAmount(shiftAmount)
+      .shiftAmount(shiftAmount),
+      .shiftEnable(shiftEnable)
   );
 
   // Register file contains 4 * 8-bit registers
@@ -135,6 +137,7 @@ module TopLevel
       .op2(data2),
       .Aluop(Aluop),
       .result(Rslt),
+      .shiftEnable(shiftEnable),
       .equal(equal),
       .lessThan(SCo)
   );

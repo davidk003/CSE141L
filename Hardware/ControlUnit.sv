@@ -10,7 +10,8 @@ module ControlUnit(
     output logic [4:0] LUTIndex,
     output logic [2:0] Aluop,
     output logic shiftDirection,
-    output logic [2:0] shiftAmount
+    output logic [2:0] shiftAmount,
+    output logic immediate
 );
     typedef enum {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
     instruction_type instruction;

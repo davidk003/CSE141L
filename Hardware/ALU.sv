@@ -1,7 +1,7 @@
 module ALU(
     input logic[7:0] op1, op2,
     input logic[2:0] Aluop,
-    input logic shift,
+    input logic shiftEnable,
     input logic shiftDirection,
     output logic[7:0] result,
     output logic equal,
@@ -9,12 +9,13 @@ module ALU(
 );
 
 logic [7:0] muxResult;
+logic [7:0] shiftResult;
 
 Shifter Shifter_inst (
     .operand(op1),
     .shiftOperand(op2),
     .direction(shiftDirection),
-    .result(muxResult)
+    .result(shiftResult)
 );
 
     always_comb begin
@@ -41,5 +42,7 @@ Shifter Shifter_inst (
         end
         
     end
+
+    assign muxResult = (shiftEnable) ? shiftResult : result;
 
 endmodule: ALU
