@@ -71,15 +71,18 @@ module TopLevel
   // Data Memory control signals
   wire WenR, WenD;     // Write enables
   wire Ldr, Str;       // LOAD and STORE controls
-  wire memWriteEnable;
-  wire memReadEnable;
-  wire regWrite;
+
+
+  wire regToReg;
+  wire memToReg;
+  wire regToMem;
 
   wire [7:0] jumpAmount;
   wire [7:0] branchLUTIndex;
 
   wire         shiftDirection;
-  wire [2:0]   shiftAmount;
+  wire         shiftImmediateEnable;
+  wire [7:0]   shiftImmediate;
 
   wire [7:0]  LUTIndex;
   wire [7:0]  index;
@@ -89,6 +92,8 @@ module TopLevel
 
   logic [7:0] LUTreg;
   wire LUTwrite;
+  wire LUTtoReg;
+  wire [1:0] LUTtoRegIndex;
 
   assign data1 = RdatA;          // ALU operand A from RegFile
   assign data2 = RdatB;          // ALU operand B from RegFile
@@ -124,21 +129,22 @@ module TopLevel
   );
 
   ControlUnit CU_inst (
-      .bits(mach_code),
-
-      .equal(equal),
-      .lessThan(lessThan),
-    //   .immediate(),,
-      .LUTwrite(LUTwrite),
-      .branchEnable(branchEnable),
-      .memWrite(memWriteEnable),
-      .memRead(memReadEnable),
-      .regWrite(regWrite),
-      .LUTIndex(LUTIndex),
-      .Aluop(Aluop),
-      .shiftDirection(shiftDirection),
-      .shiftImmediate(shiftImmediate),
-      .shiftEnable(shiftEnable)
+    .bits(mach_code),
+    .equal(equal),
+    .lessThan(lessThan),
+    .branchEnable(branchEnable),
+    .regToReg(regToReg),
+    .memToReg(memToReg),
+    .regToMem(regToMem),
+    .Aluop(Aluop),
+    .shiftEnable(shiftEnable),
+    .shiftDirection(shiftDirection),
+    .shiftImmediateEnable(shiftImmediateEnable),
+    .shiftImmediate(shiftImmediate),
+    .LUTIndex(LUTIndex),
+    .LUTtoReg(LUTtoReg),
+    .LUTwrite(LUTwrite),
+    .LUTtoRegIndex(LUTtoRegIndex)
   );
 
   // Register file contains 4 * 8-bit registers
@@ -154,7 +160,7 @@ module TopLevel
   );
 
     ALUInMux ALUInMux_inst (
-      .shiftImmediateEnable(),,
+      .shiftImmediateEnable(shiftImmediateEnable),
       .operand1(data1),
       .operand2(data2),
       .shiftImmediate(shiftImmediate),
@@ -200,21 +206,5 @@ module TopLevel
 			    end
         end
   end
-  
-
-  // // Example: If memRead (LOAD) is active, set Addr from LUT value
-  // // If memWrite (STORE) is active, set Addr from LUT value and data from ALU result
-  // always_comb begin
-  //     if (memRead) begin
-  //         Addr = value;              // Address for LOAD from LUT
-  //         WdatD = Rslt;              // Data to write back from ALU
-  //     end else if (memWrite) begin
-  //         Addr = value;              // Address for STORE from LUT
-  //         WdatD = Rslt;              // Data to store from ALU
-  //     end else begin
-  //         Addr = 8'd0;
-  //         WdatD = 8'd0;
-  //     end
-  // end
 
 endmodule
