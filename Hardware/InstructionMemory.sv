@@ -10,6 +10,9 @@ module InstructionMemory(
   end
   $readmemb("mach_code.txt", Core);
   end
-  always_comb mach_code = Core[PC];
+  always_comb begin
+    mach_code = Core[PC];
+    $display("InstructionMemory @ %d: %b",PC, mach_code);
+  end
 
 endmodule

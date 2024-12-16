@@ -5,16 +5,16 @@ module ProgramCounter(
 );
 
 always @(posedge clk) begin
-    $display("PC: %d", count);
     if(reset) begin
         count <= 8'b0;
-        $display("PC: Reset to 0");
+        $display("Reset Signal High");
     end
     else if(jumpEnable) begin
         count <= jumpAmount;
         $display("PC: Jump to %d", jumpAmount);
     end
     else begin
+        $display("PC incremented: %d", count+1);
         count <= count + 8'b1;
     end
 end

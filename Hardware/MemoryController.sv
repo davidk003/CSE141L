@@ -20,6 +20,7 @@ module MemoryController(
 );
 
 always_comb begin
+    // $display("MemoryController");
     regAddress = 2'b00;
     memAddress = 8'b0;
     regWrite = 1'b0;

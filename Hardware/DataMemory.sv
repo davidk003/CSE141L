@@ -12,12 +12,13 @@ module DataMemory(
     assign dataMemoryOut = mem_core[address];
 
     always @(posedge clk) begin
+        $display("DataMemory");
         if(wen) begin
             mem_core[address] <= writeData;
             $display("Writing: %d", writeData);
         end
         else begin
-            $display("Reading: %d", mem_core[address]);
+            $display("Memory Reading @ %d: %b", address, mem_core[address]);
         end
     end
 endmodule: DataMemory

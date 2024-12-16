@@ -38,9 +38,9 @@ Shifter Shifter_inst (
                 3'b111: equal = (op1 == op2);         // EQ
                 default: arithmeticResult = 8'b0;               // Default to zero
         endcase
-        
     end
 
     assign result = (shiftEnable) ? shiftResult : arithmeticResult;
+    initial $display("ALUoutput: %d", result);
 
 endmodule: ALU

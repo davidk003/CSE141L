@@ -10,11 +10,14 @@ module RegisterFile(
             //  RdatB
   ); // read data out B
 
-  logic[7:0] Core[4]; // reg file itself (4*8 array)
+  logic[7:0] Core[4] = '{8'h00, 8'h00, 8'h00, 8'h00};
+// reg file itself (4*8 array)
 
-  always_ff @(posedge clk)
+
+  always_ff @(posedge clk) begin
+    // $display("RegisterFile");
     if(wen) Core[w_addr] <= dataIn;
-
+  end
   assign dataOut1 = Core[r_addr1];
   assign dataOut2 = Core[r_addr2];
 

@@ -64,7 +64,6 @@ module TopLevel
   wire branchEnable;
   wire shiftEnable;
 
-  wire carry; //ALU carry out
 
   // Comparison flags
   wire equal; // ALU equal flag
@@ -87,7 +86,6 @@ module TopLevel
   wire [7:0]   shiftImmediate;
 
   wire [7:0]  LUTIndex;
-  wire [7:0]  index;
   wire [7:0]  value;
 
   wire [7:0] ALUop1, ALUop2;
@@ -237,6 +235,7 @@ module TopLevel
     .dataMemoryOut(Rdat),
     .wen(memWrite)
   );
+  
     initial $display("Loaded modules");
   // Logic to determine Done signal (example condition)
   always_ff @(posedge clk or posedge reset) begin
@@ -253,8 +252,15 @@ module TopLevel
                 $display("R1 | Decimal: %d, Binary: %b", RF_inst.Core[1], RF_inst.Core[1]);
                 $display("R2 | Decimal: %d, Binary: %b", RF_inst.Core[2], RF_inst.Core[2]);
                 $display("R3 | Decimal: %d, Binary: %b", RF_inst.Core[3], RF_inst.Core[3]);
+                $display("LUT | Decimal: %d, Binary: %b", LUTreg, LUTreg);
             end
             else begin
+                $display("Done, dumping registers");
+                $display("R0 | Decimal: %d, Binary: %b", RF_inst.Core[0], RF_inst.Core[0]);
+                $display("R1 | Decimal: %d, Binary: %b", RF_inst.Core[1], RF_inst.Core[1]);
+                $display("R2 | Decimal: %d, Binary: %b", RF_inst.Core[2], RF_inst.Core[2]);
+                $display("R3 | Decimal: %d, Binary: %b", RF_inst.Core[3], RF_inst.Core[3]);
+                $display("LUT | Decimal: %d, Binary: %b", LUTreg, LUTreg);
                 done <= 1'b0;
 			    end
         end
