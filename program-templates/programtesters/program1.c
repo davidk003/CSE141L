@@ -1,16 +1,26 @@
 #include <stdio.h>
 #include <stdint.h>
 
+//gcc -o program1 programtesters/program1.c Software/int2float-combine.c
+
+uint16_t int2float(uint8_t input1, uint8_t input2);
+
 // Dummy test function
 uint16_t testFunction(uint8_t input1, uint8_t input2) {
     // Placeholder function with no logic
-    return 0;
+    return int2float(input1, input2);
 }
 
 // Function to print binary representation of an 8-bit number
 void printBinary(uint8_t num) {
-    for (int i = 7; i >= 0; i--) {
-        printf("%c", (num & (1 << i)) ? '1' : '0');
+    for (int i = 7; i >= 0; i--) {  // Iterate over all 8 bits
+        printf("%d", (num >> i) & 1);  // Shift right and mask to get each bit
+    }
+}
+
+void printBinary16(uint16_t num) {
+    for (int i = 15; i >= 0; i--) {  // Iterate over all 16 bits
+        printf("%d", (num >> i) & 1);  // Shift right and mask to get each bit
     }
 }
 
@@ -73,8 +83,9 @@ int main() {
         printf("\n");
     }
 
+    int i;
     printf("\nInputs2 (Last 8 bits):\n");
-    for (int i = 0; i < numTestCases; i++) {
+    for (i = 0; i < numTestCases; i++) {
         printf("Test case %2d: ", i);
         printBinary(inputs2[i]);
         printf("\n");
@@ -83,15 +94,25 @@ int main() {
 
     // Iterate through all test cases
     for (int i = 0; i < numTestCases; i++) {
-        uint16_t output = testFunction(inputs1[i], inputs2[i]);
-        if (output != trueOutputs[i]) {
-            printf("Test case %d FAILED: input1 = 0b%08b, input2 = 0b%08b, trueOutput = 0b%016b, got = 0b%016b\n",
-                   i, inputs1[i], inputs2[i], trueOutputs[i], output);
-        } else {
-            printf("Test case %d PASSED: input1 = 0b%08b, input2 = 0b%08b, output = 0b%016b\n",
-                   i, inputs1[i], inputs2[i], output);
-        }
+    uint16_t output = testFunction(inputs1[i], inputs2[i]);  // Declare and initialize `output`
+
+    printf("Test case %d %s: input1 = 0b", i, (output == trueOutputs[i]) ? "PASSED" : "FAILED");
+    printBinary(inputs1[i]);  // Print input1 as binary
+    printf(", input2 = 0b");
+    printBinary(inputs2[i]);  // Print input2 as binary
+
+    if (output != trueOutputs[i]) {
+        printf(", trueOutput = 0b");
+        printBinary16(trueOutputs[i]);  // Print true output
+        printf(", got = 0b");
+        printBinary16(output);  // Print actual output
+    } else {
+        printf(", output = 0b");
+        printBinary16(output);  // Print actual output
     }
+
+    printf("\n");  // New line after each test case
+}
 
     return 0;
 }

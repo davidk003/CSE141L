@@ -143,9 +143,3 @@ uint16_t floatToFixed(uint8_t float1, uint8_t float2)
 //       return twos complement of output
 //     Else:
 //       return output
-
-int main(int argc, char const *argv[])
-{
-    
-    return 0;
-}

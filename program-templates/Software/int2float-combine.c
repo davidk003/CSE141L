@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <stdio.h>
 
@@ -64,7 +63,7 @@ uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
     float2 = float2 << 1;
     float1 = float1 | temp;
     //Premove both parts to go without sign.
-    uint8_t i = 0;
+    i = 0;
     label1:
         if (i < 15)
         {
@@ -98,13 +97,13 @@ uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
         //to extract lower 8 bits, bitmask float1 with 0b00111111, shift by 2, then OR with bitmask of float2 with 0b11000000 shifted by 6.
         
         //Get lower 8 first
-        temp = float1 && 0b00111111;
+        temp = float1 & 0b00111111;
         temp = temp << 2;
-        float2 = float2 && 0b11000000;
+        float2 = float2 & 0b11000000;
         float2 = float2 >> 6;
         float2 = float2 | temp;
 
-        temp = float1 && 0b11000000;
+        temp = float1 & 0b11000000;
         float1 = float1 >> 6; //Done with mantissa
 
         exp = BIAS_INITIAL_EXP - i;
@@ -115,15 +114,4 @@ uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
         float1 = float1 | temp; //Added sign bit to float1
         return concatFloat(float1, float2);
 
-}
-
-int main() {
-    uint8_t fixed1 = 0b00000000;
-    uint8_t fixed2 = 0b01000000;
-    uint16_t out = int2float(fixed1, fixed2);
-    // Print out as binary
-    for (int i = 0; i < 16; i++) {
-        printf("%d", (out >> (15 - i)) & 1);
-    }
-    return 0;
 }

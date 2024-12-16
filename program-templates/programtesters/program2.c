@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
+#include "Software\floatToFixed.c"
+
+// gcc -o program2 program2.c
 
 // Dummy test function
 uint16_t testFunction(uint8_t input1, uint8_t input2) {
