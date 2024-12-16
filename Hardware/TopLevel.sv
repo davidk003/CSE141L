@@ -19,14 +19,16 @@ module TopLevel
 // SEQ(Set equal to) -  2 bit type (00), 3 bits opcode (111), 2 bit operand register (XX), 2 bit operand register (XX)
 
 // Memory(01) M Instruction Type
-// SB(store byte) - 2 bit type (01), 3 bit opcode (000), 2 bit destination memory address register (XX), 2 bit source (XX)
+// SB(store byte) - 2 bit type (01), 3 bit opcode (000), 2 bit destination memory address register (XX), 2 bit source value register address(XX)
+//  Ex: SB R0 R1 stores value of R1 into address at R0
 // LB(load byte) - 2 bit type (01), 3 bit opcode (001), 2 bit destination register (XX), 2 bit source memory address register (XX)
+//  Ex: LB R0 R1 loads value at memory address R1 into R0
 // LL(load LUT val) - 2 bit type (01), 3 bit opcode (010), 4-bit LUT index (XXXX) //1st LUT loader, Load value into special reg
 // LL2(Load LUT 2 val) - 2 bit type (01), 3 bit opcode (011), 4-bit LUT index (XXXX) //2nd LUT loader, Load value into special reg
 
-// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX) //Load lower value into reg 3
-// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX) //Load upper value into reg 3
-// LLR(Load LUTreg to main Register) - 2 bit type (01), 3 bit opcode (110), 2-bit register, 2-bit dummy //Loads from special LUT register to desired register.
+// LIL(Load immediate lower) - 2 bit type (01), 3 bit opcode (100), 4-bit LUT index (XXXX) //Load lower value into special LUT reg
+// LIU(Load immediate upper) - 2 bit type (01), 3 bit opcode (101), 4-bit LUT index (XXXX) //Load upper value into special LUT reg
+// LLR(Load LUTreg to main Register) - 2 bit type (01), 3 bit opcode (110), 2-bit register(XX), 2-bit dummy //Loads from special LUT register to desired register.
 
 
 // Branch(10) B Instruction Type
@@ -38,8 +40,8 @@ module TopLevel
 // Shift and other(11) S Instruction Type
 // LSL(Left shift) - 2 bit type (11), 2 bit opcode (00), 2 bit operand destination register, 2-bit register shift amount, 1-bit dummy
 // LSR(Right shift) - 2 bit type (11), 2 bit opcode (01), 2 bit operand destination register, 2-bit register shift amount, 1-bit dummy
-// LSI(Left shift immediate) - 2 bit type (11), 2 bit opcode (10), 5 bit immediate in instruction for shift amount
-// RSI(Right shift immediate) - 2 bit type (11), 2 bit opcode (11), 5 bit immediate in instruction for shift amount
+// LSI(Left shift immediate) - 2 bit type (11), 2 bit opcode (10), 2-bit operand register, 3 bit immediate in instruction for shift amount
+// RSI(Right shift immediate) - 2 bit type (11), 2 bit opcode (11), 2-bit operand register, 3 bit immediate in instruction for shift amount
 
 //DEPRECATE BRANCHING DIRECTION FOR ABSOLUTE ADDRESSING
 // BF(Branch forwards) - 2 bit type (11), 2 bit opcode (10), 5 bit immediate for LUT index
@@ -55,7 +57,7 @@ module TopLevel
   wire [7:0]   WdatR;           // RegFile data input (from ALU)
   wire [7:0]   WdatD;           // Data memory data input
   wire [7:0]   Rdat;            // Data memory data output
-  wire [7:0]   Addr;            // Data memory address
+  wire [7:0]   mem_addr;            // Data memory address
 
 
   wire jumpEnable; // PC jump enable
@@ -68,14 +70,14 @@ module TopLevel
   wire equal; // ALU equal flag
   wire lessThan; // ALU less than flag
 
-  // Data Memory control signals
-  wire WenR, WenD;     // Write enables
-  wire Ldr, Str;       // LOAD and STORE controls
 
 
   wire regToReg;
   wire memToReg;
   wire regToMem;
+
+  wire regWrite;
+  wire memWrite;
 
   wire [7:0] jumpAmount;
   wire [7:0] branchLUTIndex;
@@ -93,45 +95,57 @@ module TopLevel
   logic [7:0] LUTreg;
   wire LUTwrite;
   wire LUTtoReg;
-  wire [1:0] LUTtoRegIndex;
+  wire [1:0] LUTRegtoRegIndex;
+
+  wire immediateLUTEnable;
+  wire [7:0] immediateToLUTReg;
+  logic [7:0] LUTvalue;
 
   assign data1 = RdatA;          // ALU operand A from RegFile
   assign data2 = RdatB;          // ALU operand B from RegFile
-  assign WdatR = Rslt;          // ALU result to RegFile
+//   assign WdatR = Rslt;          // ALU result to RegFile
 
-  assign index = LUTIndex;
+//   assign index = LUTIndex;
 
   assign jumpEnable = branchEnable;
 
-  assign LUTreg = LUTwrite ? value : LUTreg;
+//  If lut immediate is enabled, change value to immediate value else regular LUT output
+  assign LUTvalue = immediateLUTEnable ? immediateToLUTReg : value;
+  // If LUT write is enabled, write to LUTreg, else keep LUTreg the same
+  assign LUTreg = LUTwrite ? LUTvalue : LUTreg;
+
+  // Immediate write to reg
+
 
   LookUpTable LUT_inst (
-      .index(index),
-      .value(value)
+    .index(LUTIndex),
+    .value(value)
   );
 
   LookUpTable branchLUT (
-      .index(),
-      .value(jumpAmount)
+    .index(branchLUTIndex),
+    .value(jumpAmount)
   );
 
   ProgramCounter PC_inst (
-      .clk(clk),
-      .reset(reset),
-      .jumpEnable(jumpEnable),
-      .jumpAmount(jumpAmount),
-      .count(PC)
+    .clk(clk),
+    .reset(reset),
+    .jumpEnable(jumpEnable),
+    .jumpAmount(jumpAmount),
+    .count(PC)
   );
 
   InstructionMemory IM_inst (
-      .PC(PC),
-      .mach_code(mach_code)
+    .PC(PC),
+    .mach_code(mach_code)
   );
 
   ControlUnit CU_inst (
+    // Inputs
     .bits(mach_code),
     .equal(equal),
     .lessThan(lessThan),
+    // Outputs
     .branchEnable(branchEnable),
     .regToReg(regToReg),
     .memToReg(memToReg),
@@ -144,46 +158,83 @@ module TopLevel
     .LUTIndex(LUTIndex),
     .LUTtoReg(LUTtoReg),
     .LUTwrite(LUTwrite),
-    .LUTtoRegIndex(LUTtoRegIndex)
+    .LUTRegtoRegIndex(LUTRegtoRegIndex),
+    .immediateToLUTReg(immediateToLUTReg),
+    .immediateLUTEnable(immediateLUTEnable),
+    .r_addr1(r_addr1),
+    .r_addr2(r_addr2)
+  );
+
+  MemoryController mem_controller (
+    // Inputs
+    .operandRegister1(r_addr1),
+    .operandRegister2(r_addr2),
+    .LUTRegtoRegAddress(LUTRegtoRegIndex),
+    .regToReg(regToReg),
+    .regToMem(regToMem),
+    .memToReg(memToReg),
+    .LUTtoReg(LUTtoReg),
+    //regData1 used as source memory address for store byte,
+    //destination register address for load byte
+    .reg1Data(RdatA),
+    //regData2 used as register address to store for store byte
+    //source memory address for load byte
+    .reg2Data(RdatB),
+    .ALUdata(Rslt),
+    .memData(Rdat),
+    .LUTdata(LUTreg),
+    // Outputs
+    .regAddress(w_addr),
+    .memAddress(mem_addr),
+    .regWrite(regWrite),
+    .memWrite(memWrite),
+    .writeMemData(WdatD),
+    .writeRegData(WdatR)
   );
 
   // Register file contains 4 * 8-bit registers
   RegisterFile RF_inst (
-      .clk(clk),
-      .wen(regWrite),
-      .r_addr1(r_addr1),
-      .r_addr2(r_addr2),
-      .w_addr(w_addr),
-      .dataIn(WdatR),
-      .dataOut1(RdatA),
-      .dataOut2(RdatB)
+    //Inputs
+    .clk(clk),
+    .wen(regWrite),
+    .r_addr1(r_addr1),
+    .r_addr2(r_addr2),
+    .w_addr(w_addr),
+    .dataIn(WdatR),
+    // Outputs
+    .dataOut1(RdatA),
+    .dataOut2(RdatB)
   );
 
-    ALUInMux ALUInMux_inst (
-      .shiftImmediateEnable(shiftImmediateEnable),
-      .operand1(data1),
-      .operand2(data2),
-      .shiftImmediate(shiftImmediate),
-      .ALUop1(ALUop1),
-      .ALUop2(ALUop2)
-  );
+  ALUInMux ALUInMux_inst (
+    .shiftImmediateEnable(shiftImmediateEnable),
+    .operand1(data1),
+    .operand2(data2),
+    .shiftImmediate(shiftImmediate),
+    //Outputs
+    .ALUop1(ALUop1),
+    .ALUop2(ALUop2)
+);
 
   ALU ALU_inst (
-      .op1(ALUop1),
-      .op2(ALUop2),
-      .Aluop(Aluop),
-      .result(Rslt),
-      .shiftEnable(shiftEnable),
-      .equal(equal),
-      .lessThan(SCo)
+    // Inputs
+    .op1(ALUop1),
+    .op2(ALUop2),
+    .Aluop(Aluop),
+    .shiftEnable(shiftEnable),
+    .shiftDirection(shiftDirection),
+    // Outputs
+    .result(Rslt),
+    .equal(equal),
+    .lessThan(lessThan)
   );
 
   DataMemory data_mem1 (
-      .clk(clk),
-      .address(Addr),
-      .writeData(WdatD),
-      .dataMemoryOut(Rdat),
-      .wen(memWriteEnable)
+    .clk(clk),
+    .address(mem_addr),
+    .writeData(WdatD),
+    .dataMemoryOut(Rdat),
+    .wen(memWrite)
   );
 
   // Logic to determine Done signal (example condition)
