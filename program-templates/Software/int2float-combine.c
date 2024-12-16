@@ -1,76 +1,21 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <math.h>
-#include <string.h>
 
-// Converts a float to half-precision (IEEE 754 half) 
-// Sign: 1 bit, Exponent: 5 bits, Fraction: 10 bits, Bias = 15
-static uint16_t float_to_half(float f) {
-    // Handle special cases
-    if (f == 0.0f) {
-        return 0;
-    }
-    if (isinf(f)) {
-        // Infinity: sign bit + all exponent bits set + fraction = 0
-        uint16_t sign = (signbit(f)) ? 0x8000 : 0x0000;
-        return sign | 0x7C00; // 0x7C00 = Inf in half precision
-    }
-    if (isnan(f)) {
-        // NaN: sign bit + all exponent bits set + nonzero fraction
-        return 0xFE00; // Just a simple NaN pattern
-    }
-
-    // Normal conversion
-    uint32_t bits;
-    memcpy(&bits, &f, sizeof(bits));
-
-    // Extract sign, exponent, mantissa from float32
-    uint32_t sign = (bits >> 31) & 0x1;
-    int32_t exponent = (int32_t)((bits >> 23) & 0xFF) - 127; // float32 bias = 127
-    uint32_t mantissa = bits & 0x7FFFFF;
-
-    // Convert exponent and mantissa to half
-    // Half bias = 15
-    int32_t half_exp = exponent + 15;
-    if (half_exp <= 0) {
-        // Subnormal or too small
-        if (half_exp < -10) {
-            // Value too small to represent as subnormal half => 0
-            return (uint16_t)(sign << 15);
-        }
-        // Subnormal (exponent too small): shift mantissa accordingly
-        mantissa |= 0x800000; // restore the hidden leading 1
-        uint32_t shift = (uint32_t)(14 - half_exp);
-        uint32_t half_mant = mantissa >> shift;
-        // Round to nearest, tie to even: Just truncation for simplicity
-        return (uint16_t)((sign << 15) | (half_mant >> 13));
-    } else if (half_exp >= 31) {
-        // Overflow => Infinity
-        return (uint16_t)((sign << 15) | 0x7C00);
-    } else {
-        // Normal
-        // Mantissa is 23 bits, need to get 10 bits for half
-        uint16_t half_mant = (uint16_t)(mantissa >> 13);
-        // Round to nearest, tie to even could be considered, but we assume truncation
-        uint16_t half_exp_bits = (uint16_t)(half_exp << 10);
-        return (uint16_t)((sign << 15) | half_exp_bits | half_mant);
-    }
-}
-
-uint16_t concatFloat(uint8_t float1, uint8_t float2)
-{
-    return ((uint16_t)float1 << 8) | float2;
+uint16_t concatFloat(uint8_t high, uint8_t low) {
+    return ((uint16_t)high << 8) | low;
 }
 
 uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
     uint8_t ZERO_CONST = 0x00;
     uint8_t LEADING_ONE_CONST = 0x80;
-    uint8_t MIN_EXP = 0xF8; // as per your original code for negative infinity
+    uint8_t MIN_EXP = 0xF8; // For negative infinity
+    uint8_t ALL_ONE = 0xFF;
+    uint8_t BIAS_INITIAL_EXP = 29;
 
     // Trap cases
     if (fixed2 == ZERO_CONST) {
         if (fixed1 == LEADING_ONE_CONST) {
-            // Negative infinity (custom as per your original code)
+            // Negative infinity case
             return concatFloat(MIN_EXP, ZERO_CONST);
         }
         if (fixed1 == ZERO_CONST) {
@@ -79,13 +24,75 @@ uint16_t int2float(uint8_t fixed1, uint8_t fixed2) {
         }
     }
 
-    // Combine into signed 16-bit
-    int16_t value = (int16_t)((fixed1 << 8) | fixed2);
+    // Extract sign
+    uint8_t sign = fixed1 & LEADING_ONE_CONST;
 
-    // Convert to float
-    float f = (float)value;
+    // Take absolute value if negative
+    uint8_t float1, float2;
+    if (sign) {
+        // Two’s complement
+        float1 = fixed1 ^ ALL_ONE;
+        float2 = fixed2 ^ ALL_ONE;
+        float2 = (uint8_t)(float2 + 1);
+        if (float2 == 0x00) {
+            float1 = (uint8_t)(float1 + 1);
+        }
+    } else {
+        float1 = fixed1;
+        float2 = fixed2;
+    }
 
-    // Convert float to half
-    uint16_t half = float_to_half(f);
-    return half;
+    // Check if zero after abs
+    if (float1 == 0 && float2 == 0) {
+        return 0;
+    }
+
+    // Normalization
+    uint8_t i = 0;
+    // Initial shift
+    uint8_t temp = (float2 & LEADING_ONE_CONST) >> 7;
+    float2 <<= 1;
+    float1 = (uint8_t)((float1 << 1) | temp);
+
+    // Shift until leading one found or 15 shifts
+    while (i < 15) {
+        if (float1 & LEADING_ONE_CONST) {
+            break; 
+        }
+        temp = (float2 & LEADING_ONE_CONST) >> 7;
+        float2 <<= 1;
+        float1 = (uint8_t)((float1 << 1) | temp);
+        i++;
+    }
+
+    // If no leading one found (unexpected), treat as zero
+    if ((float1 & LEADING_ONE_CONST) == 0) {
+        return 0;
+    }
+
+    // Remove the implicit leading 1 by shifting once more
+    temp = (float2 & LEADING_ONE_CONST) >> 7;
+    float2 <<= 1;
+    float1 = (uint8_t)((float1 << 1) | temp);
+
+    // Compute exponent
+    uint8_t exp = (uint8_t)(BIAS_INITIAL_EXP - i);
+
+    // Extract mantissa bits
+    uint8_t lower6 = (float1 & 0x3F); // 00111111
+    lower6 <<= 2; // shift left by 2
+    uint8_t top2 = float2 & 0xC0; // 11000000
+    float2 = (uint8_t)((top2 >> 6) | lower6);
+
+    // Remove mantissa bits from float1
+    float1 >>= 6;
+
+    // Insert exponent (5 bits) into float1
+    uint8_t exp_shifted = (uint8_t)(exp << 2);
+    float1 = (uint8_t)(float1 | exp_shifted);
+
+    // Add sign bit
+    float1 = (uint8_t)(float1 | (sign));
+
+    return concatFloat(float1, float2);
 }
