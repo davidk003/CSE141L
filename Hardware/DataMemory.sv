@@ -7,17 +7,17 @@ module DataMemory(
     output logic [7:0] dataMemoryOut
     );
 
-    logic [7:0] core [256];
+    logic [7:0] mem_core [256];
 
-    assign dataMemoryOut = core[address];
+    assign dataMemoryOut = mem_core[address];
 
     always @(posedge clk) begin
         if(wen) begin
-            core[address] <= writeData;
+            mem_core[address] <= writeData;
             $display("Writing: %d", writeData);
         end
         else begin
-            $display("Reading: %d", core[address]);
+            $display("Reading: %d", mem_core[address]);
         end
     end
 endmodule: DataMemory

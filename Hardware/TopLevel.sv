@@ -116,7 +116,6 @@ module TopLevel
 
   // Immediate write to reg
 
-
   LookUpTable LUT_inst (
     .index(LUTIndex),
     .value(value)
@@ -147,6 +146,7 @@ module TopLevel
     .lessThan(lessThan),
     // Outputs
     .branchEnable(branchEnable),
+    .branchLUTIndex(branchLUTIndex),
     .regToReg(regToReg),
     .memToReg(memToReg),
     .regToMem(regToMem),
@@ -164,6 +164,7 @@ module TopLevel
     .r_addr1(r_addr1),
     .r_addr2(r_addr2)
   );
+
 
   MemoryController mem_controller (
     // Inputs
@@ -236,10 +237,11 @@ module TopLevel
     .dataMemoryOut(Rdat),
     .wen(memWrite)
   );
-
+    initial $display("Loaded modules");
   // Logic to determine Done signal (example condition)
   always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
+            $display("Resetting");
             done <= 1'b0;
         end else begin
             // Example: Set Done when PC reaches a specific value

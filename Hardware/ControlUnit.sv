@@ -3,7 +3,7 @@ module ControlUnit(
     input logic equal,
     input logic lessThan,
     output logic branchEnable,
-    output logic [4:0] branchLUTIndex,
+    output logic [7:0] branchLUTIndex,
     output logic regToReg,
     output logic memToReg,
     output logic regToMem,
@@ -24,14 +24,15 @@ module ControlUnit(
     typedef enum logic [1:0] {R=2'b00, M=2'b01, B=2'b10, S=2'b11 } instruction_type;
     instruction_type instruction;
 
-    always begin
+    always_comb begin
+        $display("Instruction: %b", bits);
         shiftImmediateEnable = 1'b0;
         shiftEnable = 1'b0;
         shiftImmediate = 8'b0;
         shiftDirection = 1'b0;
 
         branchEnable = 1'b0;
-        branchLUTIndex = 4'b0000;
+        branchLUTIndex = 8'b0;
         LUTIndex = 4'b0000;
         LUTRegtoRegIndex = 2'b00;
         Aluop = 3'b000;
@@ -126,24 +127,24 @@ module ControlUnit(
                 2'b00: begin //BEQ
                     if(equal) begin
                         branchEnable = 1'b1;
-                        branchLUTIndex = bits[4:0];
+                        branchLUTIndex = {3'b000, bits[4:0]};
                     end
                 end
                 2'b01: begin //BLT
                     if(lessThan) begin
                         branchEnable = 1'b1;
-                        branchLUTIndex = bits[4:0];
+                        branchLUTIndex = {3'b000, bits[4:0]};
                     end
                 end
                 2'b10: begin //BLTE
                     if(lessThan || equal) begin
                         branchEnable = 1'b1;
-                        branchLUTIndex = bits[4:0];
+                        branchLUTIndex = {3'b000, bits[4:0]};
                     end
                 end
                 2'b11: begin //BUN
                     branchEnable = 1'b1;
-                    branchLUTIndex = bits[4:0];
+                    branchLUTIndex = {3'b000, bits[4:0]};
                 end
                 default: begin
                     branchEnable = 1'b0;
